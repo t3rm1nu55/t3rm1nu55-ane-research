@@ -4,6 +4,38 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-04-07 — sweep (4 findings)
+
+### Finding 1: ClF3 — PMU event register format changes on M3 and M4
+- **Source:** ClF3's blog
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** 2025/2026 (exact publication date not retrieved)
+- **Summary:** Documents a breaking change in Apple Silicon PMU register layout: on M3 and M4, the ESR configuration registers are 64-bit with 16 bits allocated per event, compared to M1/M2's 8 bits per event. Also notes that `SYS_APL_PMCR0_EL1` gets overwritten by the kernel within ~100 µs, making sustained PMU sampling impossible on stock macOS without a patched kernel. Provides the exact SYS_APL_PMCR0/PMCR1 bit patterns for enabling PMC2–9 at EL0/EL1.
+- **Why it matters:** The kperf sidecar in t3rm1nu55-monitorplus must handle M3/M4 register format differently from M1/M2; the 100 µs window also constrains the sampling strategy for the privileged helper.
+
+### Finding 2: Orion — first open end-to-end ANE LLM runtime
+- **Source:** arXiv + GitHub
+- **URL:** https://arxiv.org/abs/2603.06728 / https://github.com/mechramc/Orion
+- **Date:** March 2026
+- **Summary:** Academic paper + working codebase that bypasses CoreML entirely via Apple's private `_ANEClient` and `_ANECompiler` APIs. Implements a five-pass compiler from a graph IR down to ANE-native MIL, with IOSurface-backed zero-copy tensor I/O. Key innovation is "delta compilation": after each training step, compiled ANE programs are patched in-place rather than fully recompiled, cutting recompilation from 4,200 ms to 494 ms (8.5×), yielding a 3.8× end-to-end training speedup on M4 Max (170+ tokens/s inference on GPT-2 124M). The "94% ANE utilization" figure is derived from throughput benchmarking, not hardware counters.
+- **Why it matters:** Establishes the complete `_ANEClient`/`_ANECompiler` private API surface in a single auditable codebase; any future ANE utilization metric hook will need to instrument this layer or its kernel counterpart.
+
+### Finding 3: maderix Part 3 + maderix/ANE repo — training + INT8 on ANE
+- **Source:** maderix Substack + GitHub
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b / https://github.com/maderix/ANE
+- **Date:** March 2026 (repo commits: 2026-03-06 to 2026-03-10)
+- **Summary:** Part 3 of the maderix M4 ANE series covers full transformer training on the ANE (forward pass, backward pass, gradient computation) on a 109M-parameter model designed for inference. The companion GitHub repo has since added INT8 W8A8 quantization via `quantize`/`dequantize` MIL ops, achieving 1.88× ANE throughput improvement, and multi-model support including Qwen3-0.6B with GQA.
+- **Why it matters:** Shows the maderix work is maturing into production tooling; INT8 results confirm that compile-time weight baking (not runtime counters) drives ANE optimization today.
+
+### Finding 4: lauka — Apple Silicon PMU counter CLI
+- **Source:** GitHub
+- **URL:** https://github.com/verte-zerg/lauka
+- **Date:** Created 2026-01-07
+- **Summary:** A minimal CLI built on the reverse-engineered kperf API (ibireme's gist) that records named Apple Silicon PMU counters (cycles, instructions, branch mispredictions, L1D misses, etc.) across multiple commands, computes per-metric statistics (mean/stddev/min/max/outliers), and emits a delta column comparing each command against a baseline. Requires `sudo`. Supports at least M3.
+- **Why it matters:** New reference implementation for kperf tooling that is more ergonomic than the ibireme gist; the `lauka counters --details` command is a useful enumeration of available event names per chip generation.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
