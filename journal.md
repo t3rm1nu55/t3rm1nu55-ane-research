@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-04-09 — sweep (3 findings)
+
+### Finding 1: Orion — First open LLM training/inference system on ANE via private APIs
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** March 6, 2026
+- **Summary:** Ramchand Kumaresan's Orion bypasses CoreML entirely by calling `_ANEClient` and `_ANECompiler` private APIs directly, delivering the first open system that both trains and runs LLMs on the ANE. It catalogs 20 ANE constraints (14 previously undocumented), demonstrates 94% ANE utilization achievable via deep operation graphs (16–64 ops), and documents an ANE compiler limit of ~119 compilations per process before silent failures begin. Companion code at https://github.com/mechramc/Orion.
+- **Why it matters:** The most detailed public catalogue of `_ANEClient`/`_ANECompiler` API surface to date; the utilization measurement methodology and constraint catalogue are essential groundwork before t3rm1nu55-monitorplus can attempt any ANE instrumentation.
+
+### Finding 2: maderix Part 3 — ANE training, weight-blob crack, first M5 data point
+- **Source:** maderix Substack
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b
+- **Date:** ~March 2026 (per companion repo commit history)
+- **Summary:** Part 3 of the maderix M4 ANE series covers training neural networks on ANE: reverse-engineering the weight blob format, implementing a delta-compilation workaround for the 119-compile limit, and reporting the first public M5 ANE throughput data point (via contributor m0at). Companion code at https://github.com/maderix/ANE gained INT8 W8A8 quantization (March 10, 2026), achieving 1.88× throughput improvement on M4.
+- **Why it matters:** The M5 data point and INT8 throughput characterisation extend the known ANE performance matrix; the companion repo is an active working reference for direct ANE access patterns that no other tracked project currently provides.
+
+### Finding 3: ClF3 blog — PMU control register layout differs on M3/M4 vs M1/M2
+- **Source:** ClF3's blog
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** Unknown (post-January 2026, untracked source)
+- **Summary:** Documents that `SYS_APL_PMCR0_EL1` and `SYS_APL_PMCR1_EL1` event-selector fields are 16 bits per slot on M3/M4 but only 8 bits on M1/M2, a breaking difference not noted in the bugsiki blog (which was M2-based). This affects how kperf counter configuration code must be written to support M3/M4.
+- **Why it matters:** The kperf FFI in t3rm1nu55-monitorplus needs chip-generation-aware PMU register layout; this is the first public documentation of exactly where M1/M2 and M3/M4 bitfield widths diverge.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
