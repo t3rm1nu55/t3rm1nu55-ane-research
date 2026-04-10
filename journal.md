@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-04-10 — sweep (3 findings)
+
+### Finding 1: maderix Part 3 — Full transformer training on the M4 ANE
+- **Source:** maderix Substack (tracked)
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b
+- **Date:** 2026-03-07
+- **Summary:** Third installment of the M4 ANE reverse-engineering series. Demonstrates a complete training loop — forward pass, backward pass, gradient computation, AdamW optimizer updates — running natively on the ANE via `_ANEClient`/`_ANECompiler` private APIs, bypassing CoreML entirely. A companion open-source repo (`maderix/ANE`) was published simultaneously and shows active development through 2026-03-10, including INT8 W8A8 quantisation (1.88× ANE throughput via MIL `quantize`/`dequantize` ops) and multi-model benchmarks. The initial synthesis cited Part 2 as "the current best public characterisation" but missed Part 3, which significantly advances the known API surface.
+- **Why it matters:** Confirms `_ANEClient` is stable enough for training-class dispatch; the maderix/ANE repo is now a live reference implementation of the private API call sequence that could inform an "ANE busy" heuristic via process-dispatch monitoring.
+
+### Finding 2: Orion (arxiv:2603.06728) — First open end-to-end ANE LLM system
+- **Source:** arXiv (tracked search string: "Apple Neural Engine" AND "counter" OR "utilization" OR "benchmark")
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** 2026-03-06
+- **Summary:** Academic paper describing Orion, the first open system for end-to-end ANE LLM training and inference that bypasses CoreML via `_ANEClient`/`_ANECompiler`. It documents 20 ANE programming constraints (14 newly discovered MIL IR and memory constraints), a compiler state limit of ~119 `ANECCompile()` calls per process before silent failure (addressed in Orion v2 via delta compilation), and GPT-2 124M inference at 170+ tok/s. The "94% ANE utilisation" figure is derived from throughput benchmarking against peak, not from a hardware counter.
+- **Why it matters:** Most thorough public documentation of the `_ANEClient`/`_ANECompiler` API surface to date; the compilation counter limit is a new operational constraint relevant to any tool that probes ANE activity by driving test compilations.
+
+### Finding 3: ClF3 blog — M3/M4 PMU ESR register encoding differs from M1/M2
+- **Source:** https://blog.clf3.org/post/pmu-event-counters/ (new, not yet tracked)
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** Unknown (appeared alongside bugsiki.dev in tracked LKML search results)
+- **Summary:** Documents that the PMU ESR registers on M3 and M4 are 64-bit (vs 48-bit on M1/M2), and that each kperf event selector occupies 16 bits (vs 8 bits on M1/M2). Counter configuration code that hardcodes M1/M2 shift/mask arithmetic will silently misconfigure event selectors on M3/M4, likely producing zeroed or garbage counter readings without any error.
+- **Why it matters:** Directly actionable for the kperf privileged sidecar: the event-encoding layer must branch on chip generation or it will produce incorrect counter reads on M3/M4 hardware. Opening a tracking issue on the main project.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
