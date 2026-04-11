@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-04-11 — sweep (3 findings)
+
+### Finding 1: Orion — first systematic ANE programming characterization
+- **Source:** arXiv (2603.06728)
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** 2026-03-06
+- **Summary:** "Orion: Characterizing and Programming Apple's Neural Engine for LLM Training and Inference" maps 20 restrictions on MIL IR programs (14 previously undocumented) and shows that deep operation graphs (16–64 ops) achieve 94% ANE utilization on M4 Max. A per-process ANE compiler bug silently drops compilations after ~119 attempts. MIT-licensed open-source code accompanies the paper.
+- **Why it matters:** Orion's constraint catalog is the best public characterization of ANE programmability to date; the ~119-compilation limit is an operational hazard for any tool (including monitorplus) that exercises the ANE repeatedly via private APIs.
+
+### Finding 2: maderix Part 3 + maderix/ANE repo — open-source ANE training code
+- **Source:** maderix Substack / GitHub maderix/ANE
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b / https://github.com/maderix/ANE
+- **Date:** 2026-03-07 (post) / 2026-03-10 (last repo commit)
+- **Summary:** Part 3 demonstrates full transformer training (forward + backward pass, gradient, Adam optimizer) directly on M4 ANE via reverse-engineered `_ANEClient`/`_ANECompiler` private APIs, achieving 1.78 TFLOPS sustained (11.2% of peak) at 9.3 ms/step for a 109M-parameter model. The companion GitHub repo contains working Python code under an open license.
+- **Why it matters:** Working open-source code using private ANE APIs is now publicly available; maderix/ANE is the most concrete reference for any future ANE instrumentation work in monitorplus and should be added to tracked references.
+
+### Finding 3: XTC — cross-platform harness using Apple's KPerf/KPep on Apple Silicon
+- **Source:** arXiv (2512.16512)
+- **URL:** https://arxiv.org/abs/2512.16512
+- **Date:** 2025-12-18
+- **Summary:** XTC is an AI workload benchmarking platform that accesses Apple's undocumented KPerf system interface and the KPep event-translation database at `/usr/share/kpep/` to read hardware performance counters on Apple Silicon — described as the first cross-platform harness to do so alongside x86 and NVIDIA GPU support.
+- **Why it matters:** XTC's KPerf/KPep access pattern is a live reference implementation the monitorplus kperf privileged sidecar can study; the `/usr/share/kpep/` database path is a confirmed stable anchor for event name translation across chip generations.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
