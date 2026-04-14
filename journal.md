@@ -4,6 +4,34 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-04-14 — sweep (3 findings)
+
+### Finding 1: Orion — first open end-to-end ANE LLM training/inference system
+
+- **Source:** arXiv (found via tracked search: `"Apple Neural Engine" AND ("counter" OR "utilization" OR "benchmark")`)
+- **URL:** https://arxiv.org/abs/2603.06728 · https://github.com/mechramc/Orion
+- **Date:** March 6, 2026 (missed by seed)
+- **Summary:** Orion is the first open system for direct ANE-based LLM training and inference, bypassing CoreML entirely via `_ANEClient`/`_ANECompiler` private APIs. A weight-patching technique sidesteps the documented 119-compile-per-process limit, reducing per-step recompilation from 4,200 ms to 494 ms (8.5×). On M4 Max: 170+ tokens/s for GPT-2 124M inference; 110M-parameter transformer trained from scratch in 22 minutes.
+- **Why it matters:** Documents the most complete public `_ANEClient` usage pattern yet. The compile-limit bypass and explicit private API invocation are directly relevant to any future ANE utilization-tracking approach in t3rm1nu55-monitorplus.
+
+### Finding 2: jiegec/apple-pmu — versioned kpep counter archive through macOS Tahoe 26.4
+
+- **Source:** GitHub — jiegec/apple-pmu (untracked repo; found via web search for kperf tooling)
+- **URL:** https://github.com/jiegec/apple-pmu
+- **Date:** Active; last updated March 25, 2026
+- **Summary:** Systematically extracts and commits PMU counter definitions from `/usr/share/kpep` across macOS releases, covering A7 through A19 Pro and all M-series chips. The March 25 commit "Refresh counters for tahoe 26.4" adds data for macOS Tahoe 26.4 betas; coverage also includes iOS device disk images. Added to `references.md` as a new tracked source.
+- **Why it matters:** The only public, versioned, per-release archive of kpep counter databases. Directly useful for tracking counter additions/removals across macOS releases and for maintaining the kperf sidecar event list.
+
+### Finding 3: macOS Tahoe 26.5 Beta 2 — M5-era kpep counter definitions pending extraction
+
+- **Source:** MacRumors
+- **URL:** https://www.macrumors.com/2026/04/13/apple-releases-macos-tahoe-26-5-beta-2/
+- **Date:** April 13, 2026
+- **Summary:** Apple released macOS Tahoe 26.5 Beta 2 on April 13. M5 Pro and M5 Max hardware shipped in March 2026; 26.5 is the first beta cycle likely to carry M5-specific kpep counter definitions beyond what 26.4 contained. jiegec/apple-pmu has not yet been updated for 26.5 beta data.
+- **Why it matters:** macOS beta cycles are when new PMU counter definitions for new chip variants first surface in `/usr/share/kpep`. A "Refresh counters for tahoe 26.5" commit in jiegec/apple-pmu is the earliest signal for any new M5 PMU events.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
