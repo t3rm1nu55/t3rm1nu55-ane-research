@@ -4,6 +4,26 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-04-19 — sweep (2 findings)
+
+*Note: both findings were published in March 2026 but were missed by the manual initial seed on 2026-04-07. This is the first automated sweep run; items not in the journal are logged regardless of publication date.*
+
+### Finding 1: Orion — first open end-to-end ANE runtime with utilization measurement
+- **Source:** arXiv 2603.06728 + GitHub mechramc/Orion
+- **URL:** https://arxiv.org/abs/2603.06728 / https://github.com/mechramc/Orion
+- **Date:** March 2026
+- **Summary:** Orion bypasses CoreML entirely via Apple's private `_ANEClient` and `_ANECompiler` APIs, delivering 170+ tok/s inference and full transformer training on the ANE. The paper catalogs 20 ANE constraints (14 previously undocumented), including the ~119-compile-per-process limit that Orion circumvents with delta compilation. The benchmark suite measures ANE utilization as fraction of wall time spent inside `orion_eval` dispatches — the closest thing to a real utilization metric yet published.
+- **Why it matters:** The `orion_eval` timing ratio is an adaptable methodology for ANE utilization estimation in t3rm1nu55-monitorplus without needing hardware counters.
+
+### Finding 2: maderix Part 3 — transformer training on ANE completes three-part series
+- **Source:** maderix Substack
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b
+- **Date:** 2026-03-07
+- **Summary:** The third and final installment of maderix's ANE reverse-engineering series demonstrates full backward-pass training (forward, backward, gradients, Adam optimizer) on the M4 ANE via `_ANEClient`, including Qwen3-0.6B (596M parameters). The initial seed only referenced Part 2 (benchmarks). Part 3 confirms the `_ANEClient` private API is stable enough for gradient workloads, not just inference.
+- **Why it matters:** Confirms `_ANEClient` dispatch stability under sustained load — relevant for any telemetry sidecar that hooks into ANE dispatch events.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
