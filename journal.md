@@ -4,6 +4,37 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-04-21 — sweep (3 findings)
+
+> Note: This is the first live sweep. The April 7 entry was the initial seed, not an automated run.
+> All three findings predate April 7 but were absent from the seed; they are logged here to close those gaps.
+
+### Finding 1: maderix ANE Part 3 "Training" + open-source `maderix/ANE` repo
+
+- **Source:** maderix Substack / GitHub
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b · https://github.com/maderix/ANE
+- **Date:** 2026-03-07 (Part 3 post); repo active through 2026-03-10
+- **Summary:** The third installment of the maderix M4 ANE series demonstrates a full forward + backward pass (109M-parameter transformer, Adam optimizer) executed on the ANE via reverse-engineered private APIs — hardware Apple ships for inference only. Accompanying open-source code (`maderix/ANE`) provides a C-callable bridge that resolves `_ANEClient`, `_ANECompiler`, and the newly documented `_ANEPerformanceStats` private class at runtime. `_ANEPerformanceStats` is an undocumented class in `AppleNeuralEngine.framework` and is the first publicly identified symbol that may surface ANE-internal performance data to the host.
+- **Why it matters:** `_ANEPerformanceStats` is the only currently known private symbol plausibly exposing ANE hardware metrics; it warrants reverse-engineering to determine if it wraps a counter or is purely software-side bookkeeping.
+
+### Finding 2: Orion — Characterizing and Programming Apple's Neural Engine (arXiv 2603.06728)
+
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** 2026-03-06
+- **Summary:** Academic paper describing a full programming model for the ANE targeting LLM training and inference. Key empirical results: deep operation graphs achieve 94% ANE utilization (measured via benchmark proxying against IOReport power, not hardware counters); the ANE compiler silently fails after ~119 compilations per process, requiring an `exec()` restart strategy (~50 ms cost per restart). Achieves GPT-2 124M inference at 170+ tokens/sec on M4.
+- **Why it matters:** The ~119-compilation limit is a hard constraint any ANE utilization sampler must account for; the 94% utilization figure confirms IOReport power-delta remains the only viable proxy for ANE activity from outside the private API surface.
+
+### Finding 3: XTC Research Platform — cross-platform KPerf harness for Apple Silicon (arXiv 2512.16512)
+
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2512.16512
+- **Date:** 2025-12
+- **Summary:** XTC is a research platform for AI workload optimization that, as part of its measurement harness, uses Apple's undocumented `kperf`/`kperfdata` framework and the `/usr/share/kpep` database on macOS to access hardware performance counters on Apple Silicon CPUs — the first published cross-platform counter harness that explicitly targets this path. The paper validates counter reads against x86, non-Apple ARM, and NVIDIA GPU targets in the same framework.
+- **Why it matters:** XTC's macOS counter path is a working, citable open reference for the kperf FFI approach used in the t3rm1nu55-monitorplus privileged sidecar; the kpep-database event-translation pattern is directly reusable.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
