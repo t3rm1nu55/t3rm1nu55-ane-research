@@ -4,6 +4,24 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-04-29 — sweep (2 findings)
+
+### Finding 1: M3/M4 PMU event-slot width changed to 16-bit (newly discovered source)
+- **Source:** clf3.org — "Utilizing PMU Event Counters on Apple M3 and M4"
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** Publication date unconfirmed; discovered this sweep
+- **Summary:** Documents a breaking difference in PMU register layout between chip generations: on M1/M2 each event selector in `SYS_APL_PMCR1_EL1` occupies 8 bits; on M3/M4 the same ESR registers switch to 16 bits per event. The M3/M4 also extend the programmable counter group to 8 events visible from user space vs. 6 on earlier silicon, with different constraint pairs.
+- **Why it matters:** Any kperf sidecar that hard-codes M1/M2 register bit-packing for event selection will silently program wrong counters on M3/M4 — an immediate correctness bug for t3rm1nu55-monitorplus on users with M3 or M4 hardware.
+
+### Finding 2: NPUMoE — ANE energy-efficiency characterisation under MoE workloads (arXiv 2604.18788)
+- **Source:** arXiv — "Efficient Mixture-of-Experts LLM Inference with Apple Silicon NPUs"
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** April 20, 2026 (submitted)
+- **Summary:** Presents NPUMoE, a runtime that offloads static dense computation to the ANE while keeping dynamic routing on CPU/GPU; tested across three MoE LLMs on Apple M-series. Reports 1.81×–7.37× energy efficiency improvement over CPU/GPU-only baselines and characterises the 16-core M2 ANE at 15.8 TFLOPS FP16. Energy measurements are wall-clock + IOReport energy deltas, not hardware counters — reinforcing that IOReport remains the only public energy signal.
+- **Why it matters:** Validates the IOReport energy-delta approach as sufficient for distinguishing ANE-active vs. idle and provides a reproducible benchmark pairing (workload, IOReport energy) that could inform per-process ANE power inference in t3rm1nu55-monitorplus.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
