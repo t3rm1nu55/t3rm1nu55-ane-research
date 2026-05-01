@@ -4,6 +4,33 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-01 — sweep (3 findings)
+
+Two of the three findings below are **catch-ups**: they were published in March 2026 but were not captured in the 2026-04-07 initial seed. One finding (arXiv 2604.18788) is genuinely new since the last sweep.
+
+### Finding 1: Orion — first open ANE end-to-end system with `_ANEClient` compiler pipeline
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** 2026-03-06 (catch-up; missed by initial seed)
+- **Summary:** Orion is the first open system that combines direct ANE execution, a custom compiler pipeline, and multi-step training in a single runtime, bypassing CoreML entirely via `_ANEClient` and `_ANECompiler` private APIs. The paper catalogs 20 restrictions on MIL IR programs and memory layout — 14 of which were previously undocumented — and identifies a per-process ANE compilation limit of approximately 119 invocations before silent failures occur. Tensor I/O uses IOSurface-backed shared memory in a fixed `[1, C, 1, S]` fp16 layout, enabling zero-copy CPU↔ANE transfer.
+- **Why it matters:** The IOSurface layout and the per-process compilation counter are the closest thing yet to an indirect ANE activity metric; these details directly inform any future t3rm1nu55-monitorplus effort to move beyond IOReport power-gating as the sole ANE observable.
+
+### Finding 2: maderix Part 3 — transformer training on M4 ANE via reverse-engineered private APIs
+- **Source:** maderix Substack
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b
+- **Date:** 2026-03 (catch-up; initial seed referenced Parts 1–2 only)
+- **Summary:** Part 3 of the maderix ANE series demonstrates a full training loop — forward pass, backward pass, gradient computation, Adam updates — running on the M4 ANE for a 109M-parameter transformer, using the same `_ANEClient`/`_ANECompiler` path established in Parts 1–2. Accompanying code is published at https://github.com/maderix/ANE.
+- **Why it matters:** Confirms that ANE utilization during training workloads (not just inference) is now a real scenario; the `maderix/ANE` repo is a new tracked codebase that could surface further API/counter discoveries.
+
+### Finding 3: arXiv 2604.18788 — NPUMoE: MoE LLM inference on Apple Silicon ANE with energy benchmarks
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** 2026-04-20 (new since last sweep)
+- **Summary:** NPUMoE offloads the dense/static computation of Mixture-of-Experts models to the Apple Silicon ANE, achieving 1.32×–5.55× latency reduction and 1.81×–7.37× energy efficiency improvement on M2 Ultra/Max versus CPU-only baselines. The paper measures a 16-core M2 ANE at 15.8 TFLOPS FP16 and uses IOReport (not powermetrics) for per-interval energy accounting, treating the ANE energy channel as ground truth.
+- **Why it matters:** Independently validates that IOReport's ANE energy channel is the right measurement primitive, and provides a published throughput/energy characterization of M2 ANE that can calibrate our per-interval power-inference heuristics.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
