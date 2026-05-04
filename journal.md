@@ -4,6 +4,38 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-04 — sweep (4 findings)
+
+### Finding 1: M3/M4 PMU event encoding is 16-bit per slot (vs 8-bit on M1/M2)
+- **Source:** ClF3's blog — "Utilizing PMU Event Counters on Apple M3 and M4"
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** ~2026 (exact date unknown)
+- **Summary:** On M1/M2 the PMU `ESR` register encodes each event in 8 bits; on M3/M4 the register widens to 64 bits and each event slot is 16 bits. The post walks through `SYS_APL_PMCR0_EL1` and `SYS_APL_PMCR1_EL1` register semantics and confirms the fixed-counter count (2) and configurable-counter count (8) remain the same across generations.
+- **Why it matters:** Any kperf sidecar that hard-codes M1/M2 event-encoding bit widths will silently produce wrong counter values on M3/M4 — this is a concrete porting requirement for the privileged sidecar.
+
+### Finding 2: Orion — first open-source end-to-end ANE training system; 14 new MIL constraints catalogued
+- **Source:** arXiv 2603.06728; GitHub mechramc/Orion
+- **URL:** https://arxiv.org/abs/2603.06728 · https://github.com/mechramc/Orion
+- **Date:** March 2026
+- **Summary:** Orion bypasses CoreML entirely via `_ANEClient` and `_ANECompiler` private symbols, compiles a 27-op graph IR through five optimization passes to ANE-native MIL, and is the first system to demonstrate stable multi-step training with checkpoint resume directly on the ANE. The paper consolidates a catalog of 20 ANE operational constraints, 14 of which are newly discovered (including the ~119-compilation-per-process limit before silent failures begin).
+- **Why it matters:** The constraint catalog is the most comprehensive public documentation of what the ANE compiler will and will not accept; the open-source implementation provides a reference access path (`_ANEClient` symbol table, IOSurface I/O pattern) that a future utilization probe could follow.
+
+### Finding 3: mperf — portable kperf CLI with cross-generation event aliases for M1–M4
+- **Source:** lambdafoo.com — "Quick Hardware Performance Counters on macOS ARM64"
+- **URL:** https://lambdafoo.com/posts/2026-03-25-mperf-hardware-counters-macos.html
+- **Date:** March 25, 2026
+- **Summary:** `mperf` is a `perf-stat`-like CLI built on the ibireme kperf reverse-engineering gist that introduces portable aliases (`cycles`, `instructions`, `branch-misses`, `l1d-cache-misses`, etc.) that resolve to the correct chip-specific kpep event name at runtime; the tool confirmed stability from M1 through M4 without code changes.
+- **Why it matters:** Demonstrates the correct abstraction pattern for a multi-generation kperf FFI layer; the alias-resolution approach is directly applicable to the privileged sidecar's event-configuration API.
+
+### Finding 4: lauka — Apple Silicon PMU counter benchmark CLI with statistical aggregation
+- **Source:** GitHub verte-zerg/lauka
+- **URL:** https://github.com/verte-zerg/lauka
+- **Date:** ~2026 (exact date unknown)
+- **Summary:** `lauka` merges the `poop` and `scoop` kperf libraries into a CLI that records named PMU counters for a command under test and reports mean/stddev/min/max plus a delta column vs a baseline command; supports `lauka counters` to enumerate all available kpep events with compatibility flags.
+- **Why it matters:** Another clean kperf reference implementation; the compatibility-flag enumeration subcommand is a useful pattern for discovering which events are valid on the host chip generation without hard-coding event IDs.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
