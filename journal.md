@@ -4,6 +4,18 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-05 — sweep (1 finding)
+
+### Finding 1: Orion — first open system for direct ANE access via `_ANEClient`, with utilization tracking
+
+- **Source:** arXiv + GitHub (mechramc/Orion)
+- **URL:** https://arxiv.org/abs/2603.06728 / https://github.com/mechramc/Orion
+- **Date:** March 6, 2026 (missed in initial seed synthesis)
+- **Summary:** Orion is the first published open-source runtime that bypasses CoreML entirely, communicating directly with the ANE via Apple's private `_ANEClient` and `_ANECompiler` frameworks using MIL IR. The paper characterizes key behavioral limits: graphs with ≥16 ops achieve 94% ANE utilization, and the ANE compiler silently fails after ~119 compilations per process. The repo ships wall-time-based ANE utilization tracking (time-in-core-eval / total-wall-time), a complete benchmark harness including TFLOPS and dispatch-overhead instrumentation, and demonstrates on-device transformer training up to Qwen3-0.6B.
+- **Why it matters:** The `_ANEClient`/`_ANECompiler` private API is now reverse-engineered at enough depth to investigate whether any counter or per-request state surface is accessible through it — the most credible current lead for a real-time ANE utilization metric in t3rm1nu55-monitorplus.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
