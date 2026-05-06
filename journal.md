@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-06 — sweep (3 findings)
+
+### Finding 1: Orion — first open system to characterize and program the ANE end-to-end
+- **Source:** arXiv / GitHub (mechramc/Orion)
+- **URL:** https://arxiv.org/abs/2603.06728 · https://github.com/mechramc/Orion
+- **Date:** 2026-03-06
+- **Summary:** Academic paper plus MIT-licensed runtime that bypasses CoreML entirely via `_ANEClient` and `_ANECompiler` private APIs. The authors catalogued 20 ANE execution constraints (14 newly discovered MIL IR, memory, and I/O rules) and document that each process is limited to ~119 `ANECCompile()` calls before silent failure — an internal software counter. On M4 Max, deep operation graphs (16–64 ops) achieve 94% ANE utilisation; the paper also demonstrates a weight-patching trick that cuts per-step recompilation from 4,200 ms to 494 ms (8.5×).
+- **Why it matters:** The 20-constraint catalog and `_ANECompiler` symbol are the deepest public description of ANE programmable surface to date; the per-process compilation counter is the first documented software-visible ANE state counter.
+
+### Finding 2: maderix Part 3 — training a transformer on the ANE, plus new open-source ANE code repo
+- **Source:** maderix Substack / GitHub (maderix/ANE)
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b · https://github.com/maderix/ANE
+- **Date:** 2026-03-07
+- **Summary:** Third instalment of the maderix M4 ANE series demonstrates full forward pass, backward pass, gradient computation, and Adam optimizer updates for a 109M-parameter transformer trained directly on the ANE with no CoreML or Metal. The companion GitHub repo (`maderix/ANE`) ships working Objective-C code using the same `_ANEClient` private API surface documented in Parts 1–2.
+- **Why it matters:** The code repo is the most accessible public implementation of direct ANE dispatch; the training result confirms the ANE can sustain stateful multi-step execution, which is relevant for any future ANE activity-inference approach.
+
+### Finding 3: Efficient MoE LLM Inference with Apple Silicon NPUs (arXiv 2604.18788)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** 2026-04-22
+- **Summary:** Post-sweep paper characterising ANE behaviour for Mixture-of-Experts LLM inference; reports the M2 ANE as a 16-core unit delivering up to 15.8 TFLOPS FP16 and documents per-expert dispatch patterns that affect ANE utilisation under sparse activation.
+- **Why it matters:** Confirms cross-chip ANE core-count figures (M1=16, M2=16) that will inform any utilisation-fraction inference model in t3rm1nu55-monitorplus.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
