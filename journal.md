@@ -4,6 +4,18 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-09 — sweep (1 finding)
+
+### Finding 1: MacBook Neo (A18 Pro) exposes IOReport voltage-states unit-convention difference vs M-series
+
+- **Source:** vladkens/macmon — commits [`6e90197`](https://github.com/vladkens/macmon/commit/6e90197) (v0.7.2, May 2 2026) and [`ce352a2`](https://github.com/vladkens/macmon/commit/ce352a2) (v0.7.1, April 15 2026); [issue #57](https://github.com/vladkens/macmon/issues/57)
+- **URL:** https://github.com/vladkens/macmon
+- **Date:** April 15 – May 2, 2026
+- **Summary:** The MacBook Neo (launched March 11, 2026) is the first Mac to ship with an A-series chip (A18 Pro). macmon bug #57 revealed that IOReport `voltage-states` frequency fields on A18 Pro are stored in units that require a ×1,000,000 multiplier to convert to Hz — the same convention as M1/M2/M3 — while M4 uses a ×1,000 (kHz-origin) convention. The fix adds `chip_name.contains("A1")` to the existing M1–M3 branch rather than treating A-series as M4-equivalent.
+- **Why it matters:** t3rm1nu55-monitorplus reads IOReport frequency data; any A-series Mac support path must branch on chip family to apply the correct scaling factor, and the M4 branch is the wrong default for A-series.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
