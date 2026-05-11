@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-11 — sweep (3 findings)
+
+### Finding 1: AsahiLinux/m1n1 gains initial T8140 (A18/A18 Pro) support
+- **Source:** AsahiLinux/m1n1
+- **URL:** https://github.com/AsahiLinux/m1n1/commit/0adfe2b
+- **Date:** May 6, 2026
+- **Summary:** Asahi's m1n1 bootloader adds preliminary recognition of T8140 (Apple A18/A18 Pro), the chip used in iPhone 16 Pro and the MacBook Neo — Apple's first A-series-based Mac (released March 2026). The commit adds UART base address, MIDR P/E-core identifiers, and SMP initialization, inheriting M4-generation feature flags.
+- **Why it matters:** T8140/A18 Pro is now in Mac hardware; as Asahi deepens this chip's RE, PMU register documentation will follow and directly apply to monitoring the MacBook Neo.
+
+### Finding 2: macmon v0.7.2 fixes IOReport frequency-scaling channels for MacBook Neo
+- **Source:** vladkens/macmon
+- **URL:** https://github.com/vladkens/macmon/releases
+- **Date:** May 2, 2026
+- **Summary:** macmon v0.7.2 fixes CPU frequency display (issue #57) on MacBook Neo (A18 Pro), confirming the A18 Pro uses different IOReport channel layout or frequency-scaling semantics compared to M-series chips. The release also fixes a memory-label regression on 255 GB+ systems.
+- **Why it matters:** t3rm1nu55-monitorplus will need equivalent IOReport channel adjustments to correctly report CPU frequencies on MacBook Neo; the macmon fix is the upstream reference implementation to follow.
+
+### Finding 3: arXiv 2604.18788 — ANE used for MoE inference, energy measurements published
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** April 20, 2026
+- **Summary:** Benazir & Lin present NPUMoE, offloading MoE expert computation to Apple's ANE; benchmarks show 1.32–5.55× prefill-latency and 1.81–7.37× energy reduction across M2/M3/M4 chips. Measurement methodology not fully confirmed but consistent with IOReport Energy Model sampling.
+- **Why it matters:** New public energy-per-workload characterization of ANE across three chip generations; confirms IOReport remains the de-facto public measurement surface for ANE power.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
