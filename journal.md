@@ -4,6 +4,24 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-14 — sweep (2 findings)
+
+### Finding 1: exelban/stats ships working ANE utilization via IOReport time-in-state
+- **Source:** exelban/stats (https://github.com/exelban/stats)
+- **URL:** https://github.com/exelban/stats/commit/abbdfc1
+- **Date:** April 9, 2026 (shipped in v2.12.9)
+- **Summary:** exelban/stats v2.12.9 added ANE utilization percentage to its GPU module by querying the `"SoC Stats"`/`"Cluster Power States"` IOReport group, filtering for `ANE`-prefixed channel names, and computing `Σ(delta_active) / Σ(delta_total)` via `IOReportStateGetResidency`. This is a direct time-in-state utilization ratio — not power-derived — and is the first confirmed open-source use of this IOReport channel group for ANE activity tracking. The implementation is ARM64-only and sudoless.
+- **Why it matters:** The exact IOReport group+channel pattern (`SoC Stats / Cluster Power States / ANE*`) is directly reusable in t3rm1nu55-monitorplus as a Rust `IOReport` FFI call, unlocking a real utilization percentage rather than a power-inference proxy.
+
+### Finding 2: exelban/stats publishes calibrated max-ANE-power constants per chip generation
+- **Source:** exelban/stats (https://github.com/exelban/stats)
+- **URL:** https://github.com/exelban/stats/commit/685c7ab
+- **Date:** April 24, 2026
+- **Summary:** A follow-up commit revised ANE utilization to use the `"Energy Model"` IOReport channel, normalising against per-chip max-power constants: M1 2.0 W, M4 6.0 W, M5 8.0 W. While the power-normalisation path is less precise than time-in-state, the M5 constant (8.0 W) is the first publicly calibrated figure for the M5 ANE, superseding the maderix M4 measurement (2.8 W peak) that was the previous best reference.
+- **Why it matters:** Provides a fallback normalization formula and an actionable M5 max-power constant for any power-derived ANE utilization path in t3rm1nu55-monitorplus.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
