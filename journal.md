@@ -4,6 +4,26 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-15 — sweep (2 findings)
+
+### Finding 1: jiegec/apple-pmu — M5 kpep counter dump includes SME-specific events; no AMX events
+
+- **Source:** jiegec/apple-pmu (newly discovered; not previously tracked)
+- **URL:** https://github.com/jiegec/apple-pmu
+- **Date:** as5.md initially committed January 8, 2026; refreshed from macOS 26.4 beta on March 25, 2026
+- **Summary:** This repo extracts and renders all PMU counter definitions from macOS `/usr/share/kpep/` for every chip generation. The M5 file (`as5.md`) documents 169 counter events and includes **SME (ARM Scalable Matrix Extension) specific counters** — loads, stores, ALU ops, and mode transitions — with no equivalent AMX-specific entries. M1–M4 kpep files have no SME events; this appears in as5 only.
+- **Why it matters:** If M5 uses ARM's standardized SME rather than Apple's proprietary AMX, observable SME PMU events may provide the first hardware-counter-derived matrix-op throughput metric on Apple Silicon, resolving the AMX counter open problem for M5+ hardware. Needs verification on M5 hardware.
+
+### Finding 2: darwin-kperf — Rust crate providing kperf/kperfdata bindings, M1–M5
+
+- **Source:** darwin-kperf crate (newly discovered; not previously tracked)
+- **URL:** https://crates.io/crates/darwin-kperf
+- **Date:** Published/updated February 23, 2026
+- **Summary:** A Rust crate wrapping Apple's private `kperf.framework` and `kperfdata.framework`, exposing PMU counter access on Apple Silicon M1 through M5. Licensed MIT/Apache-2.0. Companion crate `darwin-kperf-criterion` adds Criterion.rs integration for counter-driven micro-benchmarking.
+- **Why it matters:** monitorplus's kperf privileged sidecar is currently planned as hand-rolled FFI; adopting this crate reduces implementation risk, adds tested M5 support, and avoids re-doing the kperfdata struct-layout reverse-engineering work.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
