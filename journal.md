@@ -4,6 +4,38 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-19 — sweep (4 findings)
+
+### Finding 1: "Orion" arXiv paper — first formal ANE characterization via private APIs
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** March 6, 2026
+- **Summary:** First academic paper to characterize the ANE by bypassing CoreML entirely via private `_ANEClient` and `_ANECompiler` APIs. Key measured result: deep operation graphs (16–64 ops) achieve 94% ANE utilization at 19 TFLOPS FP16 on M4. No hardware counter API is exposed; utilization is inferred from throughput timing of graph execution at the ANECompiler boundary. Paper formalizes the maderix Substack series and is accompanied by a companion GitHub repo.
+- **Why it matters:** Definitive current reference for ANE performance characterization — confirms the counter gap while quantifying what *is* measurable via private API timing.
+
+### Finding 2: maderix/ANE — working direct-ANE training implementation
+- **Source:** GitHub
+- **URL:** https://github.com/maderix/ANE
+- **Date:** Active; ~42 commits, created ~March 2026
+- **Summary:** Open-source implementation of direct ANE access for forward and backward passes on 109M–596M parameter transformers, using reverse-engineered `_ANEClient`, `_ANECompiler`, and `_ANEInMemoryModelDescriptor`. Achieves ~5–9% effective utilization under training load with "significant engineering challenges remaining". Documents a ~119 compile limit per process (resource leak in ANE compiler) and confirms SDPA causal masking is unsupported in hardware.
+- **Why it matters:** New tracked source with a live codebase; the 5–9% utilization ceiling under real workloads establishes the gap between theoretical peak and observed behavior, directly relevant to IOReport power-based utilization inference.
+
+### Finding 3: ClF3 blog — M3/M4 PMU ESR register encoding change
+- **Source:** ClF3's blog
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** 2026 (exact date not confirmed; appeared in recent search results)
+- **Summary:** Documents that M3 and M4 PMU Event Status Registers (ESR) are 64-bit with 16 bits per event slot, compared to 8 bits per event on M1/M2. The kpep plist files on disk reflect this change (as4.plist vs a14.plist etc.) but the difference requires explicit handling when parsing event bitmasks across chip generations.
+- **Why it matters:** Directly actionable for the kperf sidecar — multi-generation counter code must branch on chip family when reading/writing event configuration registers or it silently programs wrong events on M3+.
+
+### Finding 4: arXiv:2604.18788 — MoE LLM inference on Apple Silicon NPUs
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** April 2026
+- **Summary:** Introduces NPUMoE, a runtime that offloads Mixture-of-Experts expert weights to the ANE while keeping dynamic routing on CPU/GPU. Uses offline calibration (not hardware counters) to estimate expert capacity and popularity; achieves 1.32×–5.55× latency reduction on M-series devices.
+- **Why it matters:** Adds MoE workloads to the set of known patterns that drive ANE power consumption; confirms that state-of-art ANE scheduling still relies on offline calibration rather than real-time counters, reinforcing the open research gap.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
