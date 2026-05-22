@@ -4,6 +4,26 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-22 — sweep (2 findings)
+
+### Finding 1: Orion — first formal arXiv paper characterizing ANE with 94% utilization metric
+
+- **Source:** arXiv + mechramc/Orion (GitHub)
+- **URL:** https://arxiv.org/abs/2603.06728 · https://github.com/mechramc/Orion
+- **Date:** March 6, 2026 (published before this sweep window; not captured in initial seed)
+- **Summary:** "Orion: Characterizing and Programming Apple's Neural Engine for LLM Training and Inference" is the first formal academic treatment of direct ANE execution without CoreML. It reports 94% ANE utilization for deep operation graphs (16–64 ops), extends the public ANE constraint catalog to 20 entries (14 newly documented), and discovers a per-process compiler state limit of ~119 compilations before silent failure.
+- **Why it matters:** The 94% utilization methodology is the closest thing to a real ANE utilization metric in the public record; the Orion codebase (MIT license) is the first open-source reference for direct ANE scheduling without CoreML overhead.
+
+### Finding 2: maderix Part 3 (Training) + maderix/ANE open-source codebase
+
+- **Source:** maderix Substack (Part 3) + maderix/ANE (GitHub)
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b · https://github.com/maderix/ANE
+- **Date:** March 7, 2026 (follow-up to tracked Part 2; not captured in initial seed)
+- **Summary:** Part 3 completes the maderix M4 ANE series with the first public full backward pass on ANE hardware, including gradient computation and Adam optimizer updates for a 109M-parameter transformer trained from scratch on inference-only hardware. The accompanying GitHub repo (MIT license) is the first open-source implementation of direct `_ANEClient` access for both forward and backward ANE execution.
+- **Why it matters:** The maderix/ANE codebase is the most immediately actionable reference for hooking ANE execution activity in t3rm1nu55-monitorplus v2; it demonstrates that `_ANEClient`-level dispatch detection is feasible without CoreML.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
