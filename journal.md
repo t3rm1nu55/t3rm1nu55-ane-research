@@ -4,6 +4,33 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-23 — sweep (3 findings)
+
+Two findings are from the seed period (pre-2026-04-07) that the manual synthesis missed; one is new since the last check.
+
+### Finding 1: Orion — open end-to-end ANE system via `_ANEClient`, confirms 119-compile limit
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** 2026-03-06 (submitted); missed in initial seed
+- **Summary:** "Orion: Characterizing and Programming Apple's Neural Engine for LLM Training and Inference" bypasses CoreML entirely by driving `_ANEClient` and `_ANECompiler` private APIs directly, building a compiler pipeline that supports forward and backward passes. It confirms 19 TFLOPS FP16 on M4 at 2.8W, measures 94% ANE utilization only when chaining 32+ ops into a single compiled graph, and discovers a hard ~119-compilation-per-process limit enforced by the ANE kernel extension.
+- **Why it matters:** The 119-compile cap is a hard constraint for any ANE telemetry probe that dispatches synthetic workloads; the utilization curve (graph depth vs. throughput) is now the published SOTA methodology for inferring ANE activity without hardware counters.
+
+### Finding 2: `darwin-kperf` — Rust crate wrapping Apple kperf for M1–M5 hardware counters
+- **Source:** crates.io
+- **URL:** https://crates.io/crates/darwin-kperf
+- **Date:** 2026-02-23 (v0.1.0 released); missed in initial seed
+- **Summary:** A new Rust crate (v0.1.0, released Feb 23 2026) that wraps Apple's private `kperf.framework` and `kperfdata.framework` to expose hardware performance counters on Apple Silicon (M1–M5). It provides the same counter infrastructure as Instruments/xctrace with low overhead. No AMX- or ANE-specific events are exposed; coverage is standard CPU PMU events (cycles, instructions, cache miss, branch). No ABI stability guarantee.
+- **Why it matters:** t3rm1nu55-monitorplus uses a privileged sidecar for kperf access with a custom Rust FFI; darwin-kperf is a ready-made binding that could replace or cross-validate that implementation, reducing maintenance surface.
+
+### Finding 3: AsahiLinux/m1n1 — M5 and A18 Pro (MacBook Neo) hardware bring-up started
+- **Source:** AsahiLinux/m1n1 GitHub
+- **URL:** https://github.com/AsahiLinux/m1n1/commits/main/
+- **Date:** 2026-05-06 to 2026-05-15
+- **Summary:** Two May 2026 m1n1 commits mark initial hardware bring-up for new Apple SoCs: "Initial support for T8140" (May 6) covers what is believed to be the M5 SoC, and "pmgr: support M4 Pro/Max / A18 Pro / M5" (May 15) adds power-management register tables for M5 and the A18 Pro (the chip in Apple's MacBook Neo, a new Mac shipping a mobile SoC). This is early-stage bootloader work, not yet PMU counter documentation.
+- **Why it matters:** Asahi's register-documentation pipeline for new chips follows bringup with a 6–12 month lag; M5 and A18 Pro PMU event tables are the logical next milestone, and the A18 Pro in a macOS device is new monitoring territory that may have different IOReport channel names than M-series.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
