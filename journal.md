@@ -4,6 +4,24 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-25 — sweep (2 findings)
+
+### Finding 1: macmon v0.7.1 — Ultra chip IOReport CPU reporting fix
+- **Source:** vladkens/macmon
+- **URL:** https://github.com/vladkens/macmon/releases/tag/v0.7.1
+- **Date:** 2026-04-15
+- **Summary:** macmon v0.7.1 fixed CPU usage always reporting 0% on M1/M2/M3 Ultra Macs. The root cause was IOReport channel naming differences between single-die chips and dual-die Ultra variants (which use a `DIE_N_` prefix scheme); the fix required separate parsing logic for those channel names. v0.7.2 (May 2) followed with minor UI fixes.
+- **Why it matters:** t3rm1nu55-monitorplus uses the same IOReport channel access pattern; if dual-die Ultra naming isn't handled, CPU/GPU power telemetry will silently report zero on those machines — actionable bug risk.
+
+### Finding 2: arXiv 2604.18788 — NPUMoE: MoE LLM inference offloaded to Apple Neural Engine
+- **Source:** arXiv (Apple Neural Engine search string)
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** 2026-04-20
+- **Summary:** Benazir & Lin (University of Virginia) present NPUMoE, a runtime that offloads Mixture-of-Experts LLM inference to the ANE by batching static expert computations to satisfy ANE shape constraints, while keeping dynamic routing on CPU/GPU. The paper characterises three ANE-hostile MoE properties: dynamic expert routing (unpredictable tensor shapes), irregular operators (top-k, scatter/gather), and per-expert kernel dispatch overhead.
+- **Why it matters:** Primarily an inference optimisation paper, not counter-exposure work. The detailed characterisation of ANE dispatch constraints and shape limitations adds to the public knowledge of ANE scheduling behaviour, but exposes no new measurement APIs.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
