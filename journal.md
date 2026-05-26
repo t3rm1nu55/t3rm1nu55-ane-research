@@ -4,6 +4,45 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-26 — sweep (5 findings)
+
+### Finding 1: maderix Part 3 — First Transformer Training on ANE + M5 Confirmation
+- **Source:** maderix Substack
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b
+- **Date:** March 2026
+- **Summary:** Part 3 trains a 109M-parameter transformer on the M4 ANE (full forward + backward pass, Adam optimizer) and confirms the M5 ANE is the same H16G die family as M4, with the same weight-baking constraint. IOReportLegend reveals the ANE has independent adaptive clocking and multiple hardware/software power triggers not previously documented. A single transformer layer benchmark (dim=768, seq=512) measures 11.2% ANE utilization (1.78 TFLOPS of 15.8 theoretical peak).
+- **Why it matters:** The 11.2% utilization figure is the first concrete runtime utilization measurement from an ANE workload; the IOReportLegend adaptive-clock channels are new leads for richer power telemetry in monitorplus.
+
+### Finding 2: maderix/ANE — Open-Source Direct ANE Access Code
+- **Source:** GitHub (maderix/ANE)
+- **URL:** https://github.com/maderix/ANE
+- **Date:** March 2026
+- **Summary:** Companion code repo for the maderix series: a working implementation of direct ANE access via reverse-engineered `_ANEClient` and `_ANECompiler` private APIs, bypassing CoreML entirely. Maps 40+ private IOKit classes to the kernel driver and implements in-memory model compilation and dispatch.
+- **Why it matters:** First public, working code exercising the full IOKit ANE stack — directly inspectable for any counter or utilization surface the driver exposes at the IOKit boundary.
+
+### Finding 3: Orion (arXiv:2603.06728) — Systematic ANE Characterization Paper
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** 2026-03-06
+- **Summary:** "Orion: Characterizing and Programming Apple's Neural Engine for LLM Training and Inference" extends the maderix reverse-engineering work into a systematic catalog of 20 ANE compilation restrictions (14 newly discovered MIL IR, memory, and I/O constraints). Deep operation graphs (16–64 ops) achieve 94% ANE utilization; the system is fully open-source at github.com/mechramc/Orion.
+- **Why it matters:** Establishes 94% as a measured utilization ceiling achievable via the private API stack and maps the constraint space — useful context for deciding what workload patterns produce high-utilization IOReport readings.
+
+### Finding 4: Nick Chan LKML v10 — Linux PMU Driver Documents M3/M4 Event-Encoding Break
+- **Source:** LKML
+- **URL:** https://lkml.org/lkml/2026/1/1/82
+- **Date:** 2026-01-01
+- **Summary:** A 21-patch set (`[PATCH v10 00/21] drivers/perf: apple_m1: Add Apple A7-A11, T2 SoC support`) refactors the Linux Apple PMU driver around per-implementation event tables and counter counts. A key technical fact surfaced: M3/M4 PMU ESR registers are 64-bit with 16-bit event encoding per slot (vs. 8-bit on M1/M2), and performance counters are 64-bit with bit 63 as PMI trigger (vs. bit 47 on M1).
+- **Why it matters:** The 16-bit event encoding on M3/M4 is a mandatory correction for any kperf FFI targeting those chips — all existing reference implementations (ibireme gist, bugsiki analysis) use M1/M2's 8-bit event fields and will misfire silently on M3/M4.
+
+### Finding 5: clf3.org — PMU Event Counters on Apple M3 and M4 (new untracked source)
+- **Source:** blog.clf3.org
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** Unknown (appeared post-April 2026)
+- **Summary:** Independently confirms M3/M4 PMU differences (64-bit counters, 16-bit ESR event encoding) and documents a critical runtime constraint: writes to `SYS_APL_PMCR0_EL1` without kernel patching are overwritten by a kernel process within ~100 μs, making userspace-only PMU enablement infeasible for sustained counter reads on unpatched systems.
+- **Why it matters:** The ~100 μs PMCR0 clobber window validates the necessity of the privileged sidecar architecture in monitorplus — the sidecar must hold kernel entitlements or a patched PMCR0, not just write the register once per sample.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
