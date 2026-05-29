@@ -4,6 +4,24 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-05-29 — sweep (2 findings)
+
+### Finding 1: Orion — First open-source direct ANE compiler and runtime (missed by initial seed)
+- **Source:** arXiv + GitHub (mechramc/Orion)
+- **URL:** https://arxiv.org/abs/2603.06728 · https://github.com/mechramc/Orion
+- **Date:** March 6, 2026 (published before April 7 cutoff but absent from initial seed)
+- **Summary:** Orion is the first open-source end-to-end system combining direct ANE execution, a compiler pipeline (lowering through 5 passes to ANE-native MIL IR), and stable multi-step transformer training — bypassing CoreML entirely via Apple's private `_ANEClient` and `_ANECompiler` APIs. The "94% ANE utilization" figure cited in the paper is a throughput proxy derived from wall-clock benchmarking at saturating graph depth, not a hardware counter. The open-source code now gives a working reference implementation of the full `_ANEClient` dispatch path.
+- **Why it matters:** The `_ANEClient` interface is the most likely host-side vector for any undocumented ANE telemetry query; Orion makes that surface inspectable in working code for the first time.
+
+### Finding 2: NPUMoE — ANE energy measurement methodology on M2 Max/Ultra
+- **Source:** arXiv 2604.18788
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** April 20, 2026
+- **Summary:** "Efficient Mixture-of-Experts LLM Inference with Apple Silicon NPUs" (Benazir & Lin) presents NPUMoE, a runtime that offloads dense MoE sub-graphs to the ANE via CoreML while falling back to CPU/GPU for dynamic routing. Evaluation on M2 Max and M2 Ultra shows 1.81×–7.37× energy efficiency improvement attributed to ANE, measured via wall-clock time combined with powermetrics/IOReport energy deltas — the current best-practice methodology short of hardware counters. No new counter APIs are exposed; this is IOReport + timing.
+- **Why it matters:** Confirms that IOReport energy delta ÷ wall-clock interval remains the state-of-the-art ANE utilization proxy; no counter API breakthrough has emerged as of April 2026.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
