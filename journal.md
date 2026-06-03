@@ -4,6 +4,38 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-03 — sweep (4 findings)
+
+### Finding 1: Orion — First Open End-to-End Framework for Direct ANE Programming
+- **Source:** arXiv:2603.06728
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** March 6, 2026 (published before last sweep; missed by initial seed)
+- **Summary:** First open system that bypasses CoreML entirely via Apple's private `_ANEClient` and `_ANECompiler` APIs. Catalogs 20 constraints on ANE MIL IR programs, 14 of which are previously undocumented (including a 119-compilation-per-process hard limit that causes silent failures). Provides detailed hardware characterization of the M4 Max ANE: 38 TOPS INT8 across 16 cores, fp16-optimized, with measured throughput and latency. Achieves a 3.8× training speedup by patching weight files in-place instead of invoking `_ANECompiler` on each step.
+- **Why it matters:** The deepest public characterization of ANE internals to date; the `_ANEClient` API surface documented here is the hook point for any future ANE utilization counter exposure in t3rm1nu55-monitorplus.
+
+### Finding 2: maderix Part 3 + `maderix/ANE` GitHub repo — Working `_ANEClient` Implementation
+- **Source:** maderix Substack Part 3; GitHub `maderix/ANE`
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b · https://github.com/maderix/ANE
+- **Date:** March 7, 2026 (Substack Part 3); repo last commit March 10, 2026
+- **Summary:** Completes the maderix M4 ANE series (Parts 1–3) with a from-scratch transformer training implementation running entirely on the ANE. The GitHub repo provides Objective-C source code that directly uses `_ANEClient`, `_ANECompiler`, and `_ANEInMemoryModelDescriptor`, demonstrating full forward pass, backward pass, gradient computation, and Adam optimizer updates on 109M parameters on hardware designed solely for inference. The references table previously tracked only Part 2.
+- **Why it matters:** First public, open-source Objective-C reference implementation of direct `_ANEClient` access; the code is a working template for any attempt to build ANE dispatch monitoring or utilization hooks.
+
+### Finding 3: LKML Nick Chan v10 — `apple_m1_cpu_pmu` Extended to Per-Implementation Event Tables
+- **Source:** LKML (Linux Kernel Mailing List)
+- **URL:** https://lkml.org/lkml/2026/1/1/82
+- **Date:** January 1, 2026 (published before last sweep; missed by initial seed)
+- **Summary:** 21-patch v10 series by Nick Chan extending the Linux `apple_m1_cpu_pmu` driver to support Apple A7–A11 SoCs. Key structural additions: per-implementation PMU event tables, per-implementation counter counts, 32-bit EL0 counter support, and per-implementation PMU startup sequences. This refactors the driver from M1-monolithic to chip-generic, requiring each implementation to declare its own event set.
+- **Why it matters:** The per-implementation event tables reveal which kperf events each chip generation exposes; cross-referencing the Linux driver's event databases with macOS `/usr/share/kpep/` plists is the most reliable way to audit M2–M5 event coverage gaps for our kperf FFI.
+
+### Finding 4: blog.clf3.org — M3/M4 PMU ESR Event-Slot Width Change Documented
+- **Source:** ClF3's blog
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** Unknown (2025 or early 2026; untracked source)
+- **Summary:** Documents a previously unreported architectural difference in M3/M4 PMU event selection registers: each event slot is 16 bits wide on M3/M4, versus 8 bits on M1/M2. This changes the bit-packing layout of the ESR (Event Selection Register) read and written by kperf, and means M3/M4 kperf configuration code cannot be shared with M1/M2 without a chip-generation branch.
+- **Why it matters:** Our kperf FFI sidecar must handle both register formats; this is currently the only public documentation of this M3/M4 ESR width change and must inform the counter-configuration path in `t3rm1nu55-monitorplus`.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
