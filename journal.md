@@ -4,6 +4,33 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-04 — sweep (3 findings)
+
+*Note: findings 1–3 were published in March 2026 and predate the last-checked date of 2026-04-07, but were missed by the initial manual seed. Logged now to close the gap.*
+
+### Finding 1: Orion — first end-to-end ANE training/inference system + 20-constraint catalog
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** March 6, 2026
+- **Summary:** "Orion: Characterizing and Programming Apple's Neural Engine for LLM Training and Inference" bypasses CoreML entirely via private `_ANEClient`/`_ANECompiler` APIs and is the first open system to run both forward and backward passes (109M-param transformer) directly on ANE. Key hardware measurements: ~19 TFLOPS FP16 peak, ~0.095 ms dispatch overhead, 32 MB SRAM performance cliff; ANE utilization reaches 94% at 16–64 op graph depth. Catalogs 20 ANE compiler constraints including 14 previously undocumented (memory layout rules, MIL IR restrictions, per-process compilation limits).
+- **Why it matters:** Most thorough public hardware characterization of ANE to date; the constraint catalog and SRAM cliff directly bound what workload shapes keep ANE fully engaged — critical context for interpreting IOReport energy samples as a utilization proxy.
+
+### Finding 2: maderix Part 3 Substack + maderix/ANE open-source repo
+- **Source:** maderix Substack / GitHub
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b · https://github.com/maderix/ANE
+- **Date:** March 7, 2026
+- **Summary:** Part 3 of the maderix M4 ANE series demonstrates full training (forward pass, backward pass, Adam optimizer) of a 109M parameter transformer on ANE via reverse-engineered private APIs. The companion GitHub repo `maderix/ANE` provides the complete implementation, making direct `_ANEClient`-based ANE compute publicly reproducible for the first time; code includes graph compilation, dispatch, and gradient accumulation routines.
+- **Why it matters:** `maderix/ANE` is now the canonical open-source reference for the `_ANEClient` API surface; any new telemetry or counter hooks in that private API will surface here first, and the dispatch/timing code is a ready reference for measuring ANE activity without hardware counters.
+
+### Finding 3: lambdafoo mperf — kperf counter topology confirmed (2 fixed + 8 configurable)
+- **Source:** lambdafoo.com ("Perpetually Curious Blog")
+- **URL:** https://lambdafoo.com/posts/2026-03-25-mperf-hardware-counters-macos.html
+- **Date:** March 25, 2026
+- **Summary:** Introduces `mperf`, a `perf stat`-style CLI for Apple Silicon using `kperf.framework`/`kperfdata.framework`. Empirically confirms the Apple Silicon PMU topology: **2 fixed counters** (cycles, instructions) + **8 configurable slots** = 10 simultaneous events maximum. Event database lives at `/usr/share/kpep/` as chip-specific plist files; portable aliases (`cycles`, `instructions`, `branch-misses`) resolve to correct event IDs at runtime.
+- **Why it matters:** The 8-slot configurable ceiling is the hard budget for t3rm1nu55-monitorplus's kperf sidecar; any counter group design must fit within this limit. The `/usr/share/kpep/` plist structure is directly parseable for dynamic event enumeration.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
