@@ -4,6 +4,17 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-08 — sweep (1 finding)
+
+### Finding 1: NPUMoE — practical ANE offloading for MoE inference with energy efficiency measurement
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** 2026-04-20
+- **Summary:** NPUMoE is a runtime MoE inference engine that offloads dense expert FFN computation to the Apple Neural Engine while keeping dynamic routing (top-k, scatter/gather) on CPU/GPU. It uses offline expert-capacity calibration to work around the ANE's static-shape constraint and measures per-configuration latency and energy using powermetrics, achieving 1.32×–5.55× latency and 1.81×–7.37× energy efficiency improvement over CPU/GPU baselines on M-series devices.
+- **Why it matters:** Confirms powermetrics/IOReport energy sampling as the de-facto ANE telemetry path and documents a static-tier dispatch pattern that could inform how t3rm1nu55-monitorplus classifies "ANE active" intervals from IOReport Energy Model deltas.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
