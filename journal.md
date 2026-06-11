@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-11 — sweep (3 findings)
+
+### Finding 1: M3/M4 PMU event encoding differs from M1/M2 (16-bit vs 8-bit fields)
+- **Source:** ClF3's blog
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** 2026 (exact date unconfirmed — new untracked source)
+- **Summary:** Documents a breaking architectural difference in Apple PMU registers between chip generations: on M1/M2 each event selector occupies 8 bits in the ESR register, while on M3/M4 ESR registers are 64-bit and each event takes 16 bits. The post provides working code for reading kperf counters on both generations.
+- **Why it matters:** Any kperf FFI in t3rm1nu55-monitorplus that hardcodes M1/M2 event encoding will silently miscount or fault on M3/M4 — needs a runtime chip-generation branch.
+
+### Finding 2: jiegec/apple-pmu — systematic kpep event dump for A7–M5
+- **Source:** GitHub — jiegec/apple-pmu
+- **URL:** https://github.com/jiegec/apple-pmu
+- **Date:** Active; includes M5 (H17G series) and A19 Pro — not previously tracked
+- **Summary:** Tool that reads `/usr/share/kpep` and emits one Markdown file per chip variant with all PMU event names, IDs, and descriptions. Coverage spans A7 through A19 Pro and M1 through M5. Better systematic coverage than dougallj/applecpu for the specific task of event enumeration.
+- **Why it matters:** Best current public reference for M5 kpep event IDs; cross-referencing it against hollance/neural-engine symbol dumps may reveal any ANE-adjacent counter names added in M5.
+
+### Finding 3: verte-zerg/lauka — Apple Silicon PMU counter benchmark tool
+- **Source:** GitHub — verte-zerg/lauka
+- **URL:** https://github.com/verte-zerg/lauka
+- **Date:** Active; not previously tracked
+- **Summary:** CLI tool that exposes Apple Silicon PMU counters (instructions, cycles, L1d misses, branch mispredictions, wall time) via a clean benchmark harness. Uses kperf internally. CPU counters only — no ANE/AMX events.
+- **Why it matters:** Useful reference implementation for safe kperf counter access patterns; cross-check against the privileged sidecar design in t3rm1nu55-monitorplus.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
