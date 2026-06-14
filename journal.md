@@ -4,6 +4,34 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-14 — sweep (3 findings)
+
+Two findings predate the formal sweep window (published March 2026) but were absent from the initial seed synthesis. Logged here to complete the record. One finding is new since the last sweep.
+
+### Finding 1: Orion — first open-source end-to-end ANE LLM system (missed by seed)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** March 6, 2026
+- **Summary:** "Orion: Characterizing and Programming Apple's Neural Engine for LLM Training and Inference" is the first published system that combines direct ANE execution, a compiler pipeline, and stable multi-step LLM training — bypassing CoreML entirely via Apple's private `_ANEClient` and `_ANECompiler` APIs. The paper formally documents ANE constraints: MIL IR program restrictions, memory layout rules, compilation limits, and numerical behavior. It achieves stable training on a 109M parameter transformer and scales to Qwen3-0.6B (596M params).
+- **Why it matters:** This is the most complete public documentation of the ANE programming model to date. When t3rm1nu55-monitorplus eventually adds ANE telemetry, Orion's constraint catalog and the companion `maderix/ANE` GitHub repo are the primary reference implementations.
+
+### Finding 2: maderix M4 ANE series Part 3 + open-source GitHub tool (missed by seed)
+- **Source:** maderix Substack + GitHub
+- **URL (Part 3):** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b
+- **URL (repo):** https://github.com/maderix/ANE
+- **Date:** March 7, 2026 (Part 3); last commit March 10, 2026 (repo)
+- **Summary:** Part 3 of the series demonstrates the first public backward pass and Adam optimizer update running natively on the M4 ANE, scaling to a 596M-parameter Qwen3 model with grouped-query attention. The companion `maderix/ANE` GitHub repo (open source) provides direct ANE programming via `_ANEClient`/`_ANECompiler`, includes `sram_bench.m` and `sram_probe.m` for SRAM bandwidth characterization, and benchmarks INT8 W8A8 quantization achieving 1.88× throughput. No IOReport or kperf integration.
+- **Why it matters:** The SRAM bandwidth probing tools (`sram_bench.m`) represent novel black-box characterization of ANE internal memory — the closest thing to hardware telemetry currently available without counter access.
+
+### Finding 3: vladkens/macmon adds `gpu_active_ratio` from IOReport GPUPH channel
+- **Source:** vladkens/macmon (GitHub)
+- **URL:** https://github.com/vladkens/macmon/commit/3010f1fb7e209c334a1f948ea4386d92e1d761d2
+- **Date:** June 9, 2026
+- **Summary:** macmon v0.8 exposes `gpu_active_ratio` (and per-cluster CPU active ratios) as IOReport residency values without frequency scaling, distinct from the existing frequency-weighted effective usage. The metric is extracted from the existing GPUPH IOReport channel in `calc_freq()`. No ANE or AMX changes are present.
+- **Why it matters:** Establishes the upstream pattern for extracting hardware residency ratios from IOReport. If an analogous ANE residency sub-channel exists in IOReport's Energy Model (or a separate channel), this commit shows the idiomatic Rust extraction approach to model.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
