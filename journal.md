@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-16 — sweep (3 findings)
+
+### Finding 1: Orion — first academic system for direct ANE programming (arXiv 2603.06728)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** March 6, 2026
+- **Summary:** Ramchand Kumaresan's "Orion" paper presents the first open end-to-end system for direct ANE execution, bypassing CoreML entirely via Apple's private `_ANEClient` and `_ANECompiler` APIs. It catalogs 20 restrictions on MIL IR programs covering memory layout, compilation limits, and numerical behavior — the most systematic public characterization of the ANE's private API surface to date. The system demonstrates LLM training and inference on the ANE with checkpoint resume, and cites maderix's reverse-engineering work as its empirical foundation.
+- **Why it matters:** The 20-restriction constraint catalog extends the known `_ANEClient` API surface; any future ANE activity detection in t3rm1nu55-monitorplus (e.g., via dispatch pattern or compilation event hooks) must account for these constraints.
+
+### Finding 2: maderix Part 3 — ANE training with backward pass and Adam optimizer
+- **Source:** maderix Substack
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b
+- **Date:** March 2026
+- **Summary:** Third installment of the maderix M4 ANE series; demonstrates full transformer training on the ANE with forward pass, backward pass, gradient computation, and Adam optimizer updates, scaling to Qwen3-0.6B (596M parameters). This confirms the ANE's private API supports stateful gradient ops, not just inference dispatch — a non-obvious capability that significantly expands the known API surface.
+- **Why it matters:** Training requires new `_ANEClient` call paths not seen in the first two parts; any IOReport energy-based ANE detection heuristic should now account for sustained dual-direction dispatch patterns distinct from inference-only workloads.
+
+### Finding 3: ClF3 blog — M3/M4 PMU ESR register encoding differs from M1/M2
+- **Source:** ClF3's blog
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** 2026 (exact date unknown)
+- **Summary:** Empirical analysis of kperf/kpc on M3 and M4 reveals a breaking hardware difference: the ESR configuration registers are 64-bit on M3/M4 (vs 32-bit on M1/M2), and each event slot occupies 16 bits (vs 8 bits on M1/M2). This means the event-packing code in any kperf FFI must branch on chip generation or it will silently misconfigure counters on M3 and M4. The bugsiki post (already tracked) did not surface this encoding delta.
+- **Why it matters:** The kperf sidecar in t3rm1nu55-monitorplus must handle two distinct ESR layouts; running M1/M2 packing logic on an M3/M4 host will produce wrong counter reads with no runtime error.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
