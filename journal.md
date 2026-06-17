@@ -4,6 +4,17 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-17 — sweep (1 finding)
+
+### Finding 1: NPUMoE — MoE LLM Inference on Apple ANE with Empirical Characterization
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** April 20, 2026
+- **Summary:** NPUMoE is a runtime inference engine that schedules Mixture-of-Experts LLM computation onto Apple's ANE via CoreML, falling back to CPU/GPU for dynamic routing operations. The paper produces the most thorough published characterization of ANE resource limits to date: dispatch overhead ~0.095 ms per graph evaluation, on-chip SRAM ~32 MB (with a measurable throughput cliff when per-tensor footprint exceeds ~28 MB), and a maximum in-flight evaluation queue depth of 127 requests.
+- **Why it matters:** Reinforces the absence of any hardware counter path — all "ANE utilization" figures in the paper are throughput ratios (achieved TFLOPS / peak), not counter-derived values. The 32 MB SRAM cliff is a useful calibration point: crossing it should be visible as a step-change in IOReport Energy Model readings, which is currently our only runtime proxy for ANE load.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
