@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-18 — sweep (3 findings)
+
+### Finding 1: Orion — first open system for direct ANE programming and LLM training
+- **Source:** arXiv (Ramchand Kumaresan)
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** March 6, 2026 (missed by initial seed)
+- **Summary:** Orion is the first open end-to-end system that bypasses CoreML entirely via Apple's private `_ANEClient` and `_ANECompiler` APIs, adding a compiler pipeline for direct ANE graph execution and stable multi-step LLM training. Building on maderix's characterization work, it catalogues 20 ANE MIL IR restrictions, identifies a 32 MB SRAM performance cliff, and achieves 8.5× reduction in recompilation time and 170+ tokens/s GPT-2 inference on M4 Max. All utilization measurements are timing-derived; no hardware counter surface was discovered.
+- **Why it matters:** Authoritatively confirms ANE exposes zero hardware counters — IOReport energy-power inference remains the only real-time monitoring axis, which is exactly what t3rm1nu55-monitorplus v1 uses.
+
+### Finding 2: M3/M4 PMU ESR registers are 64-bit with 16-bit per-event encoding
+- **Source:** clf3's blog
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** Unknown (2025–early 2026; not in tracked references)
+- **Summary:** Documents a breaking architectural difference: on M3 and M4, ESR registers are 64-bit and each event occupies 16 bits, whereas M1/M2 use a narrower layout. The M4 kpep event database is `as4.plist`. Provides a working kperf/kpc implementation that handles the generation-specific encoding. Complements bugsiki's constraint-rule analysis with a concrete per-generation ESR width table.
+- **Why it matters:** The t3rm1nu55-monitorplus kperf privileged sidecar must detect chip generation and apply the correct ESR encoding at initialisation; using M1/M2 encoding on M3/M4 will silently misconfigure counter slots.
+
+### Finding 3: NPUMoE — ANE dispatch overhead characterised as a scheduling bottleneck
+- **Source:** arXiv (2604.18788)
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** April 20, 2026
+- **Summary:** NPUMoE offloads dense MoE transformer layers to Apple's ANE while keeping dynamic expert routing on CPU/GPU. The paper characterises ANE dispatch overhead as a dominant latency term for small expert kernels and establishes that the ANE queue depth is bounded at 127 in-flight evaluation requests. This is the first post-seed paper to quantify dispatch queue saturation as a utilization proxy.
+- **Why it matters:** The 127-evaluation queue limit is useful context for any future ANE activity detection based on dispatch-queue depth monitoring rather than power sampling.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
