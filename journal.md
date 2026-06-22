@@ -4,6 +4,40 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-22 — sweep (4 findings)
+
+Note: GitHub MCP tool access is restricted to this repo; GitHub repo checks were performed via web search. Findings 1–4 were published in March 2026 but missed by the initial seed (which was created the same day it was committed, before any sweep had run). All are new to the journal.
+
+### Finding 1: maderix ANE trilogy complete — code repo published (maderix/ANE)
+- **Source:** maderix Substack / GitHub
+- **URL:** https://github.com/maderix/ANE · https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b (Part 3)
+- **Date:** March 2026
+- **Summary:** maderix completed the three-part M4 ANE reverse-engineering series and published all code at `github.com/maderix/ANE` (6 700+ stars). Part 3 demonstrates full transformer training (109 M params) on the ANE via direct IOKit driver access, mapping 40+ private classes from `_ANEClient`/`_ANECompiler`. Part 3 reports "ANE utilization at 11.2%" — a computed metric (actual TFLOPS / theoretical peak 15.8 TFLOPS), not a hardware counter readout. Code was tested on M4 Mac Mini, macOS 15.x.
+- **Why it matters:** The `maderix/ANE` codebase is now the most complete public reference for direct ANE IOKit driver programming; its class mapping is the best available public baseline for what the ANE kernel interface exposes.
+
+### Finding 2: Orion — first open ANE runtime, 20-constraint MIL catalog (arXiv:2603.06728)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** 6 March 2026
+- **Summary:** "Orion: Characterizing and Programming Apple's Neural Engine for LLM Training and Inference" (Kumaresan) catalogs 20 constraints on ANE MIL IR programs, of which 14 are previously undocumented, and builds the first open end-to-end ANE runtime bypassing CoreML entirely via `_ANEClient`/`_ANECompiler`. It achieves 170+ tokens/s GPT-2 inference on M4 Max and discovers that the ANE compiler limits each process to ~119 compilations before silent failure.
+- **Why it matters:** The constraint catalog and compiler-state limit are directly relevant to understanding the ANE's observable envelope from the host side; these bounds constrain what a future ANE utilization API could surface.
+
+### Finding 3: jiegec/apple-pmu — rendered kpep event tables for M1–M4
+- **Source:** GitHub — jiegec/apple-pmu
+- **URL:** https://github.com/jiegec/apple-pmu
+- **Date:** Present in searches as of this sweep (no single commit date identified)
+- **Summary:** `jiegec/apple-pmu` dumps and renders Apple's PMU counter definitions from `/usr/share/kpep/` into human-readable markdown tables per chip generation (a14=M1, a15=M2, as3=M3, as4=M4). This makes it trivial to search all named kperf events on M4 (as4.md) for any AMX-adjacent or vector-unit event names.
+- **Why it matters:** Directly complements `dougallj/applecpu` for kperf event enumeration; scanning `as4.md` for hidden AMX-adjacent counter names is now a one-step grep rather than a binary reverse-engineering exercise.
+
+### Finding 4: lambdafoo — practitioner guide to kperf/kperfdata on macOS ARM64
+- **Source:** lambdafoo.com blog
+- **URL:** https://lambdafoo.com/posts/2026-03-25-mperf-hardware-counters-macos.html
+- **Date:** 25 March 2026
+- **Summary:** A practitioner guide to reading hardware performance counters on macOS ARM64 via the private `kperf.framework` / `kperfdata.framework` stack, including the `mperf` library which provides portable aliases (cycles, instructions, branch-misses, l1d-cache-misses) that resolve to the correct kpep event names per chip at runtime. Confirms: 2 fixed counters (cycles, instructions) + 8 configurable counters = 10 maximum simultaneous events on Apple Silicon.
+- **Why it matters:** Closest available working reference implementation for the kperf FFI layer the monitorplus privileged sidecar needs; the 10-counter-slot ceiling is confirmed current on M4, constraining how many PMU events can be multiplexed simultaneously.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
