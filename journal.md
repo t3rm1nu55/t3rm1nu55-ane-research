@@ -4,6 +4,24 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-23 — sweep (2 findings)
+
+### Finding 1: macmon separates active residency ratios from frequency-blended utilization
+- **Source:** vladkens/macmon
+- **URL:** https://github.com/vladkens/macmon/issues/61
+- **Date:** 2026-06-09
+- **Summary:** PR #61 corrects macmon's CPU/GPU cluster utilization calculation. The old formula blended active residency with frequency scaling (`active_residency / total_residency * avg_freq / max_freq`), causing thermally-throttled but fully-busy clusters to appear partially idle. The fix surfaces raw active residency ratios directly from IOReport's "CPU Complex Performance States" channel as a metric independent of frequency.
+- **Why it matters:** macmon is the IOReport reference for t3rm1nu55-monitorplus; if our project inherited the blended formula, cluster busy-fraction readings will be systematically wrong under thermal throttle — opened issue on main project to audit.
+
+### Finding 2: Asahi m1n1 adds M3 (T8122) cpufreq support, confirms AMX throttle register layout
+- **Source:** AsahiLinux/m1n1
+- **URL:** https://github.com/AsahiLinux/m1n1/commit/59dd457
+- **Date:** 2026-06-23
+- **Summary:** Commit 59dd457 extends m1n1's cpufreq driver to the M3 SoC (T8122), confirming its DVFS register layout is identical to M2 Pro/Max (T6030/T6031). The `t8122_features` register set includes an AMX throttle register at cluster offset `0x40250`, consistent with M2 Pro/Max.
+- **Why it matters:** Low priority — confirms M3 DVFS register compatibility and that the AMX throttle address `0x40250` applies unchanged to M3; useful baseline if future work reverse-engineers AMX activity state from register polling.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
