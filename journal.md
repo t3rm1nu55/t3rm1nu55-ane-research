@@ -4,6 +4,26 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-26 — sweep (2 findings)
+
+### Finding 1: M5 kpep exposes SME engine hardware counters via kperf
+
+- **Source:** jiegec/apple-pmu
+- **URL:** https://github.com/jiegec/apple-pmu/blob/master/as5.md
+- **Date:** Available since M5 MacBook Pro shipped (March 2026); M5 kpep files documented in repo
+- **Summary:** The M5 (AS5) kpep database — macOS's naming layer for kperf PMU events — includes 12 new SME engine counters: `INST_SME_ENGINE_ALU`, `INST_SME_ENGINE_LD/ST`, `INST_SME_ENGINE_SCALARFP`, `INST_SME_ENGINE_PACKING_FUSED`, `CORE_WAITING_SME_ENGINE_CYCLE`, and six load/store uop counters. These are reachable via the standard kperf/kpc interface. M5 replaces Apple's opaque AMX with ARM-standard SME, and Apple has wired up dedicated engine-level performance counters. No equivalent events appear in M1–M4 kpep dumps.
+- **Why it matters:** Directly resolves the "AMX event discovery" open problem for M5+: `CORE_WAITING_SME_ENGINE_CYCLE` (stall cycles waiting for the SME engine) and `INST_SME_ENGINE_ALU` (retired ALU instructions) are now measurable through the existing kperf sidecar, enabling hardware-counter-based matrix-coprocessor utilization on M5 hardware.
+
+### Finding 2: kennss/SiliconScope — new ANE-bandwidth monitor with IOReport channel debug mode
+
+- **Source:** kennss/SiliconScope (GitHub)
+- **URL:** https://github.com/kennss/SiliconScope
+- **Date:** Released June 20–24, 2026
+- **Summary:** SiliconScope is a new native SwiftUI macOS monitor (no sudo) that explicitly exposes ANE bandwidth and Media Engine metrics via IOReport. Its CLI companion (`sscope-cli --power-debug`) dumps every IOReport power channel across all groups on the running hardware, providing a practical tool for mapping which channel names carry ANE power on new chip generations. A curated channel map is maintained at `docs/ioreport-channels.md`.
+- **Why it matters:** The `--power-debug` dump accelerates mapping M5 ANE IOReport channel names — which t3rm1nu55-monitorplus needs before it can expose ANE power on M5. Adds a new untracked tool to the reference set.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
