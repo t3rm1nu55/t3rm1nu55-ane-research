@@ -4,6 +4,38 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-06-29 — sweep (4 findings)
+
+### Finding 1: Comprehensive ANE architecture paper — datapath, firmware, command protocol
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.22283
+- **Date:** June 21, 2026
+- **Summary:** Spencer Bryngelson's reverse-engineered account of the full ANE software stack: datapath and roofline, dispatch route below CoreML via `_ANEClient`/`_ANECompiler`, the compiler and on-disk MIL format, weight-compression scheme, kernel driver, firmware, and command protocol — all derived from direct measurement and static analysis of the private runtime. Received HN attention (item 48702825).
+- **Why it matters:** Most complete public documentation of ANE internals to date; the kernel driver and firmware analysis is the first place to look for whether hardware performance counter registers exist at the driver level.
+
+### Finding 2: Orion — first open end-to-end system for direct ANE compute dispatch
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** March 6, 2026
+- **Summary:** Ramchand Kumaresan's "Orion" bypasses CoreML entirely via `_ANEClient`/`_ANECompiler`, adds a compiler pipeline, and achieves stable multi-step LLM training with checkpoint resume. Catalogs 20 constraints on MIL IR programs and reports 94% ANE utilization on deep operation graphs (16–64 ops), 170+ tok/s on GPT-2 124M.
+- **Why it matters:** The 20-constraint MIL IR catalog is the most complete public specification of ANE program requirements; confirms private API stability for arbitrary compute dispatch well beyond maderix's initial proof-of-concept.
+
+### Finding 3: maderix Part 3 — full transformer training on ANE + open-source code released
+- **Source:** maderix Substack / GitHub
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b / https://github.com/maderix/ANE
+- **Date:** March 2026
+- **Summary:** Part 3 of the tracked maderix series demonstrates complete transformer training (forward pass, backward pass via `dx` on ANE, `dW` on CPU via cblas, Adam optimizer) on 109M-parameter models up to Qwen3-0.6B (596M params). All code is open-sourced at `maderix/ANE`, tested on M4 Mac Mini under macOS 15.x.
+- **Why it matters:** First publicly available code for arbitrary ANE graph dispatch including backprop; directly complements Orion and confirms `_ANEClient`/`_ANECompiler` are stable enough for production-style use.
+
+### Finding 4: ClF3 blog — M3/M4 PMU ESR registers are 64-bit with 16-bit event fields
+- **Source:** blog.clf3.org
+- **URL:** https://blog.clf3.org/post/pmu-event-counters/
+- **Date:** Unknown (late 2025 / early 2026, after bugsiki January 2026 post)
+- **Summary:** Documents a breaking hardware register change between generations: M3 and M4 PMU ESR registers are 64-bit with 16-bit fields per event slot, versus 8-bit fields on M1/M2. Enabling PMC2–PMC9 requires setting bits in `SYS_APL_PMCR0_EL1` and `SYS_APL_PMCR1_EL1`; the bit assignment in those control registers also differs from earlier chips.
+- **Why it matters:** Any kperf integration that hard-codes M1/M2 8-bit event field widths will silently misread counter configurations on M3/M4 — this is an actionable correctness bug to audit in the kperf sidecar.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
