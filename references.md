@@ -10,30 +10,36 @@ Organized by category. Each entry has: URL, last-checked date, short description
 
 | Repo | Description | Last checked | Why it matters |
 |---|---|---|---|
-| [dougallj/applecpu](https://github.com/dougallj/applecpu) | Firestorm/Icestorm microarchitecture reverse engineering + PMU event documentation | 2026-04-07 | Source of truth for what kperf events exist on M1–M3. Watch for M4/M5 updates. |
-| [hollance/neural-engine](https://github.com/hollance/neural-engine) | ANE reverse engineering, private `_ANEClient` symbol documentation | 2026-04-07 | Any new ANE symbol or counter surface surfaces here first. |
-| [asahilinux/m1n1](https://github.com/AsahiLinux/m1n1) | Asahi Linux bootloader with extensive M-series hardware register documentation | 2026-04-07 | Asahi folks have the deepest public understanding of M-series hardware registers. |
-| [vladkens/macmon](https://github.com/vladkens/macmon) | Rust macOS monitor using IOReport | 2026-04-07 | Upstream we vendor the IOReport access pattern from. Watch for channel additions. |
-| [dehydratedpotato/socpowerbud](https://github.com/dehydratedpotato/socpowerbud) | Swift IOReport-based SoC power tool | 2026-04-07 | Alternative IOReport reference implementation. Sometimes catches channels macmon misses. |
-| [tlkh/asitop](https://github.com/tlkh/asitop) | Python powermetrics wrapper | 2026-04-07 | Canary for powermetrics sampler changes (it broke on macOS 13 when Apple removed `bandwidth`). |
-| [corellium/linux-m1](https://github.com/corellium/linux-m1) | Corellium Linux-on-M1 port (earlier than Asahi) | 2026-04-07 | Historic reference for some M1 register semantics. Low update rate. |
+| [dougallj/applecpu](https://github.com/dougallj/applecpu) | Firestorm/Icestorm microarchitecture reverse engineering + PMU event documentation | 2026-06-30 | Source of truth for what kperf events exist on M1–M3. Watch for M4/M5 updates. |
+| [hollance/neural-engine](https://github.com/hollance/neural-engine) | ANE reverse engineering, private `_ANEClient` symbol documentation | 2026-06-30 | Any new ANE symbol or counter surface surfaces here first. |
+| [asahilinux/m1n1](https://github.com/AsahiLinux/m1n1) | Asahi Linux bootloader with extensive M-series hardware register documentation | 2026-06-30 | Asahi folks have the deepest public understanding of M-series hardware registers. |
+| [vladkens/macmon](https://github.com/vladkens/macmon) | Rust macOS monitor using IOReport | 2026-06-30 | Upstream we vendor the IOReport access pattern from. Watch for channel additions. |
+| [dehydratedpotato/socpowerbud](https://github.com/dehydratedpotato/socpowerbud) | Swift IOReport-based SoC power tool | 2026-06-30 | Alternative IOReport reference implementation. Sometimes catches channels macmon misses. |
+| [tlkh/asitop](https://github.com/tlkh/asitop) | Python powermetrics wrapper | 2026-06-30 | Canary for powermetrics sampler changes (it broke on macOS 13 when Apple removed `bandwidth`). |
+| [corellium/linux-m1](https://github.com/corellium/linux-m1) | Corellium Linux-on-M1 port (earlier than Asahi) | 2026-06-30 | Historic reference for some M1 register semantics. Low update rate. |
 
 ## Academic & technical papers
 
 | Source | Description | Last checked | Why it matters |
 |---|---|---|---|
-| [MIT CSAIL — Jonathan Zhou AMX SB Thesis (2025)](https://commit.csail.mit.edu/papers/2025/Jonathan_Zhou_SB_Thesis.pdf) | Deepest public treatment of AMX performance | 2026-04-07 | Any new MIT CSAIL work on AMX performance characterization. |
-| [arXiv — Apple Silicon HPC study (2502.05317)](https://arxiv.org/html/2502.05317v1) | Uses `powermetrics` as ground truth for HPC workload energy measurement | 2026-04-07 | Methodology for paired (workload, energy) measurement. |
-| [Apple PMU Counter analysis — bugsiki](https://blog.bugsiki.dev/posts/apple-pmu/) | Comprehensive analysis of kperf/kpc counter groups and constraint rules | 2026-04-07 | Authoritative on M1–M4 counter slot allocation and event compatibility. |
-| [maderix — Inside the M4 Apple Neural Engine (2024)](https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-615) | M4 ANE benchmarking, power, and direct access via `_ANEClient` | 2026-04-07 | Any follow-up from maderix on ANE or successor chips. |
-| [ibireme kperf gist](https://gist.github.com/ibireme/173517c208c7dc333ba962c1f0d67d12) | Canonical Objective-C implementation of kperf/kpc counter access | 2026-04-07 | Reference implementation we'd model our own kperf FFI against. |
+| [MIT CSAIL — Jonathan Zhou AMX SB Thesis (2025)](https://commit.csail.mit.edu/papers/2025/Jonathan_Zhou_SB_Thesis.pdf) | Deepest public treatment of AMX performance | 2026-06-30 | Any new MIT CSAIL work on AMX performance characterization. |
+| [arXiv — Apple Silicon HPC study (2502.05317)](https://arxiv.org/html/2502.05317v1) | Uses `powermetrics` as ground truth for HPC workload energy measurement | 2026-06-30 | Methodology for paired (workload, energy) measurement. |
+| [Apple PMU Counter analysis — bugsiki](https://blog.bugsiki.dev/posts/apple-pmu/) | Comprehensive analysis of kperf/kpc counter groups and constraint rules | 2026-06-30 | Authoritative on M1–M4 counter slot allocation and event compatibility. |
+| [maderix — Inside the M4 Apple Neural Engine series](https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-615) | M4 ANE benchmarking, power, direct access via `_ANEClient`; Part 3 adds training | 2026-06-30 | Any follow-up from maderix on ANE or successor chips; see also maderix/ANE repo. |
+| [maderix/ANE GitHub repo](https://github.com/maderix/ANE) | Reference ObjC implementation of ANE training via private APIs | 2026-06-30 | Canonical working example of direct ANE dispatch; watch for new API surface. |
+| [mechramc/Orion GitHub repo](https://github.com/mechramc/Orion) | End-to-end LLM training/inference runtime on ANE without CoreML | 2026-06-30 | Companion to arXiv 2603.06728; watch for new constraint discoveries or counter access. |
+| [arXiv — Orion ANE LLM (2603.06728)](https://arxiv.org/abs/2603.06728) | First complete end-to-end LLM training on ANE; catalogs 20 ANE constraints | 2026-06-30 | Hardware constraint catalog is valuable for IOReport interval interpretation. |
+| [arXiv — ANE Architecture/Programming/Performance (2606.22283)](https://arxiv.org/abs/2606.22283) | Comprehensive reverse-engineering of ANE datapath, kernel driver, firmware, command protocol | 2026-06-30 | Most actionable paper for counter/utilization hook discovery via IOKit driver analysis. |
+| [ClF3 blog — PMU Event Counters on M3/M4](https://blog.clf3.org/post/pmu-event-counters/) | Documents M3/M4 ESR register format change (16-bit events vs 8-bit on M1/M2) | 2026-06-30 | Required reading before extending kperf sidecar to M3/M4 chips. |
+| [ibireme kperf gist](https://gist.github.com/ibireme/173517c208c7dc333ba962c1f0d67d12) | Canonical Objective-C implementation of kperf/kpc counter access | 2026-06-30 | Reference implementation we'd model our own kperf FFI against. |
 
 ## Mailing lists & discussion venues
 
 | Source | Description | Last checked | Why it matters |
 |---|---|---|---|
-| [LKML — Asahi PMU patchset (Marc Zyngier)](https://lkml.kernel.org/lkml/20220208185604.1097957-1-maz@kernel.org/T/) | Upstream Linux PMU driver for Apple M1 | 2026-04-07 | Any follow-up patches for M2/M3/M4/M5 PMU support in Linux. |
-| [Apple Developer Forums](https://developer.apple.com/forums/) | Occasional hints from DTS about private framework deprecations | 2026-04-07 | Watch for kperf/IOReport/ES deprecation announcements. |
+| [LKML — Asahi PMU patchset (Marc Zyngier)](https://lkml.kernel.org/lkml/20220208185604.1097957-1-maz@kernel.org/T/) | Upstream Linux PMU driver for Apple M1 | 2026-06-30 | Any follow-up patches for M2/M3/M4/M5 PMU support in Linux. |
+| [LKML — Nick Chan apple_m1 perf v10 patchset](https://lkml.org/lkml/2026/1/1/91) | v10 of per-implementation PMU startup patch for Linux apple_m1 perf driver | 2026-06-30 | Tracks M2/M3/M4 PMU startup sequence; upstream Linux driver is a clean-room reference for our sidecar. |
+| [Apple Developer Forums](https://developer.apple.com/forums/) | Occasional hints from DTS about private framework deprecations | 2026-06-30 | Watch for kperf/IOReport/ES deprecation announcements. |
 
 ## Platforms to monitor for new arXiv preprints
 
