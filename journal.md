@@ -4,6 +4,50 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-07-07 — sweep (5 findings)
+
+### Finding 1: Comprehensive ANE reverse engineering published — datapath, driver, firmware, command protocol
+
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.22283
+- **Date:** June 21, 2026
+- **Summary:** Spencer Bryngelson (Georgia Tech) published a full reverse-engineered account of the Apple Neural Engine based on direct hardware measurement and static analysis of the private runtime, CoreML compiler, kernel driver, and firmware. Documents the ANE datapath and roofline, the dispatch route that reaches the ANE *below* CoreML, the on-disk program format, weight-compression scheme, and the kernel driver/firmware/command protocol in detail. This is the most complete public reference on ANE internals to date.
+- **Why it matters:** The dispatch route and kernel driver protocol described here are exactly what t3rm1nu55-monitorplus would need to hook into for ANE utilization telemetry; supersedes all prior partial accounts.
+
+### Finding 2: ANEForge — Python package for direct ANE computation without CoreML
+
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.17090
+- **Date:** June 12, 2026
+- **Summary:** Companion tool to Finding 1, also from Bryngelson's group at Georgia Tech. ANEForge compiles a lazy tensor graph (58 fused operators, 19 native bridge operators) into a single ANE program and dispatches it through the ANE daemon and kernel driver directly — bypassing CoreML entirely. Works under macOS 14+. Enables reproducible ANE benchmarking without CoreML's opaque scheduling.
+- **Why it matters:** Provides a working reference implementation of the ANE dispatch path described in 2606.22283; a Rust port of this dispatch approach is the clearest path to ANE utilization tracking in t3rm1nu55-monitorplus.
+
+### Finding 3: M1 AMX inner loop characterized using hardware PMU counters
+
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 2026
+- **Summary:** Deyvik Bhan (Georgia Tech) uses hardware PMU counters to determine that the M1 AMX inner loop is *load-issue bound*, running at 610–680 GFLOPS when any operand load is interleaved with the FMA32 stream — well below the load-free rate. Demonstrates that Accelerate can be beaten at fp32 GEMM (1.17× over BNNS Graph) using panel tiling and weight pre-packing rather than a faster kernel. Geometric mean 1.58× over BNNSMatMul.
+- **Why it matters:** Confirms that PMU counters *can* be used to characterize AMX behavior from the host CPU; the counter groups used to isolate the load-issue bound are a reference for what kperf events to target for AMX activity inference.
+
+### Finding 4: macmon adds IOReport ANE active residency ratio channel
+
+- **Source:** vladkens/macmon (GitHub)
+- **URL:** https://github.com/vladkens/macmon/commit/3010f1f
+- **Date:** June 9, 2026
+- **Summary:** macmon added active residency ratio metrics (PR #61), exposing the IOReport channel that reports the fraction of time CPU clusters, GPU, and ANE are in active state over each sample interval. This is distinct from the energy-joule channel already tracked — it is a *duty-cycle* metric rather than a power metric.
+- **Why it matters:** t3rm1nu55-monitorplus should add this IOReport channel; it provides a coarse "ANE utilization %" figure via IOReport without requiring any private API access.
+
+### Finding 5: m1n1 expands PMP power-management tracing and adds M3 (T8122) cpufreq support
+
+- **Source:** AsahiLinux/m1n1 (GitHub)
+- **URL:** https://github.com/AsahiLinux/m1n1/commits/main
+- **Date:** June–July 2026
+- **Summary:** m1n1 landed two batches of relevant changes: (1) PMP (Power Management Processor) tracing was expanded to cover more Apple Silicon device variants, deepening the Asahi team's understanding of the Apple power telemetry path; (2) cpufreq support for M3 (T8122) was added, along with a batch of Apple-proprietary `SYS_IMP_APL_HID*` chicken-bit registers moved to the common register set. A commit copying `AGTCNTRDIR*` registers for M3 hypervisor initialization may be relevant to counter-direction register handling.
+- **Why it matters:** The M3 cpufreq support extends the power-state model to the generation preceding M4; the PMP tracing work is the Asahi team's primary upstream handle on Apple's power management telemetry that we otherwise see only through IOReport.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
