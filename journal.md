@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-07-11 — sweep (3 findings)
+
+### Finding 1: "Apple Neural Engine: Architecture, Programming, and Performance" (arXiv 2606.22283)
+- **Source:** arXiv (Spencer H. Bryngelson)
+- **URL:** https://arxiv.org/abs/2606.22283
+- **Date:** June 21, 2026
+- **Summary:** Reverse-engineered account of the ANE derived from direct measurement on Apple silicon and static analysis of the private runtime, compiler, kernel driver, and firmware. Documents the datapath and throughput roofline, the dispatch route below Core ML, the on-disk compiled program format and weight-compression scheme, and the kernel driver command protocol with firmware.
+- **Why it matters:** Most complete public ANE architecture reference ever published; the kernel driver and firmware command-protocol sections are the closest thing yet to a roadmap for instrumenting ANE activity in t3rm1nu55-monitorplus.
+
+### Finding 2: "ANEForge: Python for direct computation on the Apple Neural Engine" (arXiv 2606.17090)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.17090
+- **Date:** June 2026
+- **Summary:** ANEForge is an open Python package that dispatches arbitrary compute graphs directly to the ANE using the reverse-engineered private runtime APIs documented in 2606.22283, with no CoreML layer. It provides a working implementation of the full ANE command-dispatch path.
+- **Why it matters:** ANEForge's IOKit/kernel call sequence is a live reference for which system interfaces to hook when detecting ANE activity; its dispatch latency measurements could inform the power-indirection threshold used in t3rm1nu55-monitorplus.
+
+### Finding 3: "Above the Inner Loop: Exceeding Accelerate at LLM Prefill GEMM on the M1 AMX" (arXiv 2606.25426)
+- **Source:** arXiv (Deyvik Bhan)
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 2026
+- **Summary:** First public paper to directly program Apple Silicon AMX for LLM GEMM workloads without Accelerate. Shows that gains come from multi-thread panel sizing that saturates M1's two on-chip AMX blocks and from pre-packed weight buffers, beating the fastest Accelerate fp32 GEMM path by 1.17×.
+- **Why it matters:** Establishes that M1 has two AMX blocks and characterizes their saturation threshold — directly actionable for AMX utilization inference in t3rm1nu55-monitorplus without requiring undiscovered hardware counters.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
