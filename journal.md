@@ -4,6 +4,24 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-07-13 — sweep (2 findings)
+
+### Finding 1: "Apple Neural Engine: Architecture, Programming, and Performance" (arXiv:2606.22283)
+- **Source:** arXiv (via tracked search string `"Apple Neural Engine" AND ("counter" OR "utilization" OR "benchmark")`)
+- **URL:** https://arxiv.org/abs/2606.22283
+- **Date:** June 2026
+- **Summary:** Spencer Bryngelson (Georgia Tech) publishes the most comprehensive public reverse-engineering of the ANE to date, covering the datapath, throughput roofline, dispatch route below CoreML, compiler and on-disk program format, weight-compression scheme, and — critically — the **kernel driver, firmware, and command protocol** beneath them. Covers A11 through A18 and M1 through M5, with per-chip target tables and an operation-by-device matrix. Measurements taken directly on M1 and M5. Companion reference at [ane-guide.readthedocs.io](https://ane-guide.readthedocs.io) / [sbryngelson/ane-guide](https://github.com/sbryngelson/ane-guide).
+- **Why it matters:** Kernel driver and command protocol documentation is the missing piece for constructing a privileged-sidecar path to the ANE in t3rm1nu55-monitorplus; this is the first public source that documents it at this depth.
+
+### Finding 2: "ANEForge: Python for direct computation on the Apple Neural Engine" (arXiv:2606.17090)
+- **Source:** arXiv (via tracked search string `"Apple Neural Engine" AND ("counter" OR "utilization" OR "benchmark")`)
+- **URL:** https://arxiv.org/abs/2606.17090
+- **Date:** June 12, 2026
+- **Summary:** Same Georgia Tech group releases ANEForge, a Python package that compiles a lazy tensor graph (58 fused ops + 19 bridge ops) and dispatches it to the ANE through the undocumented `_ANEClient`/`_ANECompiler`/`aned` private stack — no CoreML. Supports cross-compilation for 28 ANE targets (M1–M5) from one machine, training (forward + backward + Adam), int8/int4/sparse weights, and latency estimation without running hardware. Verified on M5 Pro and M1 Max. GitHub: [sbryngelson/ANEForge](https://github.com/sbryngelson/ANEForge).
+- **Why it matters:** Demonstrates that the private `_ANEClient` API surface is stable across all shipping M-series chips — a prerequisite for any library or sidecar that dispatches to or monitors the ANE. The latency-estimation without hardware capability hints at internal counters or roofline models worth investigating.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
