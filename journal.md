@@ -4,7 +4,7 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
-## 2026-07-20 — sweep (5 findings)
+## 2026-07-20 — sweep (9 findings)
 
 ### Finding 1: Comprehensive ANE architecture paper with companion open-source repo
 - **Source:** arXiv 2606.22283
@@ -40,6 +40,34 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 - **Date:** May 2026
 - **Summary:** A fused Metal kernel study reports reaching 45% of a "documented 350 GFLOPS single-core AMX peak" at batch size 1024, giving the most precise publicly cited figure for M1 AMX fp32 throughput ceiling to date.
 - **Why it matters:** Provides a calibration ceiling for any inference-based AMX utilization estimate in monitorplus — knowing the hardware peak lets a cache-delta proxy be expressed as a percentage.
+
+### Finding 6: m1n1 gates AMX system-register writes on Apple sysreg-unlock state
+- **Source:** AsahiLinux/m1n1
+- **URL:** https://github.com/AsahiLinux/m1n1/commit/53d4271a5b2523192883edf09ce3f2899ef43ced
+- **Date:** June 18, 2026
+- **Summary:** Two commits in m1n1's hypervisor guard all AMX system-register writes on whether `apple_sysregs_unlocked` is set, preventing crashes on newer chips where AMX sysregs are context-gated. Establishes that AMX register accessibility is conditional on an Apple-proprietary sysreg-unlock step, not unconditional as on M1.
+- **Why it matters:** Any attempt to read AMX performance/state registers directly must replicate this unlock sequence first; the guard condition is now codified in a public reference.
+
+### Finding 7: m1n1 documents and fixes Apple AGTCNTRDIR counter-direction registers on M3
+- **Source:** AsahiLinux/m1n1
+- **URL:** https://github.com/AsahiLinux/m1n1/commit/d16d7353da00ac6a8df1bbb06e348890f3ac16ee
+- **Date:** May 29, 2026 (follow-up July 14, 2026)
+- **Summary:** m1n1 propagates Apple's custom `AGTCNTRDIR_EL1`/`EL12` counter-direction registers from the primary to secondary cores during M3 HV init, fixing macOS guests that stall when the registers are not synchronized; a July follow-up ensures `CNTHCTL_EL2` (which gates guest counter access) is written only after counter redirection completes.
+- **Why it matters:** `AGTCNTRDIR` is an Apple-proprietary extension in the PMU pipeline not yet publicly documented; this is the first reference-grade initialization sequence for these registers, directly relevant to understanding how Apple routes PMU events across privilege levels.
+
+### Finding 8: m1n1 adds proxyclient script to enumerate CPU feature/ID registers on live Apple Silicon
+- **Source:** AsahiLinux/m1n1
+- **URL:** https://github.com/AsahiLinux/m1n1/commit/f5c7a04dd3426ba24abfdf5b634de9ecb86d7c3d
+- **Date:** June 14, 2026
+- **Summary:** A new `experiments/cpu_id_regs` script dumps all ARM CPU ID and feature registers from live Apple Silicon, explicitly motivated by Apple's non-disclosure of internals on new chips; the script targets chips like M4/M5 where Apple's kpep event database has not yet been published.
+- **Why it matters:** Direct tool for discovering PMU capability register values on chips where we don't yet have a kpep plist — running this on M4/M5 hardware would confirm which counter events actually exist.
+
+### Finding 9: macmon exposes IOReport CPU active-residency ratios per cluster
+- **Source:** vladkens/macmon
+- **URL:** https://github.com/vladkens/macmon/commit/3010f1fb7e209c334a1f948ea4386d92e1d761d2
+- **Date:** June 9, 2026
+- **Summary:** macmon's Rust API now surfaces per-cluster IOReport `CPU Stats` active-residency ratios — the fraction of time each cluster spent in an active vs. idle P-state — as a first-class field (`feat: expose active residency ratios, refs #61`). Also notes that `socpowerbud` was archived read-only in January 2026.
+- **Why it matters:** Active-residency ratios are the closest IOReport-accessible proxy for per-cluster CPU utilization; monitorplus should adopt this channel directly from macmon's implementation.
 
 ---
 
