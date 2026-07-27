@@ -4,6 +4,38 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-07-27 — sweep (4 findings)
+
+### Finding 1: Spencer Bryngelson publishes comprehensive reverse-engineered ANE reference (ane-guide + arXiv)
+- **Source:** arXiv 2606.22283 / github.com/sbryngelson/ane-guide
+- **URL:** https://arxiv.org/abs/2606.22283 · https://ane-guide.readthedocs.io
+- **Date:** 2026-06-21
+- **Summary:** Georgia Tech researcher Spencer Bryngelson published the most thorough public treatment of ANE internals to date, covering: the compute datapath and roofline, the full dispatch route below CoreML (daemon → IOKit driver → firmware), the compiled program format, weight-compression scheme, and the command protocol between the driver and engine. The work is grounded in direct measurement on hardware and static decompilation of Apple's private runtime. An accompanying web edition and GitHub repo make it a living reference.
+- **Why it matters:** The kernel driver and command protocol chapters are the first public attempt to describe how software communicates with the ANE at the register/command level — the exact layer where any hardware counter would be exposed.
+
+### Finding 2: ANEForge — Python dispatch directly to ANE without CoreML
+- **Source:** arXiv 2606.17090 / github.com/sbryngelson/ANEForge
+- **URL:** https://arxiv.org/abs/2606.17090 · https://github.com/sbryngelson/ANEForge
+- **Date:** 2026-06-12
+- **Summary:** Same author as Finding 1. ANEForge is a Python package that compiles a lazy tensor graph (58 fused operators) into an ANE program and dispatches it through the same `_ANEClient` daemon and kernel-driver stack Apple's own frameworks use, bypassing CoreML entirely. A pre-trained ResNet-18 forward pass completes in 0.33 ms; round-trip dispatch overhead is ~90 µs, near the 70 µs hardware floor. Notably, it also runs training (forward + backward + optimizer update) on the ANE.
+- **Why it matters:** Working code that talks directly to the ANE IOKit driver. Inspecting ANEForge's dispatch path is the most concrete starting point for discovering whether timing or counter registers are readable from the host side.
+
+### Finding 3: maderix/ANE — transformer training via private ANE APIs; claims ANE utilization measurement
+- **Source:** github.com/maderix/ANE (new repository, follow-up to previously tracked Substack)
+- **URL:** https://github.com/maderix/ANE
+- **Date:** 2026 (exact date not confirmed)
+- **Summary:** maderix has open-sourced a from-scratch transformer training implementation running on ANE via `_ANEClient` / `_ANECompiler` private APIs and the MIL (Model Intermediate Language) format. The README reports "11.2% ANE utilization on M4" for a benchmark workload. Skeptical note: this utilization figure is most likely derived from IOReport Energy Model power sampling (observed power / peak power), not a true hardware counter — the 11.2% figure and the ~5–9% range cited elsewhere are consistent with energy-ratio inference, not a cycle-count metric.
+- **Why it matters:** Adds a code-level reference implementation of `_ANEClient` usage on M4. The utilization claim (and its likely methodology) is worth examining to see if they surface any previously unlogged IOReport channel names for ANE.
+
+### Finding 4: M5 ships Neural Accelerators in every GPU core, exposed via Metal 4 tensor API
+- **Source:** arXiv 2607.19438 (BaseRT paper)
+- **URL:** https://arxiv.org/abs/2607.19438
+- **Date:** 2026-07-21
+- **Summary:** Apple's M5 GPU architecture introduces per-GPU-core Neural Accelerators — on-die matrix units distinct from the ANE — exposed through the public Metal 4 tensor API. BaseRT, a native Metal LLM runtime, exploits these to achieve up to 6.4× the prompt-processing throughput of llama.cpp on M5 Pro. Unlike the ANE, Metal has proper public profiling infrastructure (Metal Performance Shaders counters, GPU Frame Capture).
+- **Why it matters:** For M5 hardware, there is now a *public* API surface (Metal 4 tensor ops + Metal GPU counters) that may expose Neural Accelerator utilization without private API hacking. t3rm1nu55-monitorplus should plan a Metal counter path alongside the existing IOReport/kperf paths for M5+ systems.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
