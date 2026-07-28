@@ -4,6 +4,38 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-07-28 — sweep (4 findings)
+
+### Finding 1: Comprehensive ANE architecture reverse-engineering paper (arxiv:2606.22283)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.22283
+- **Date:** June 21, 2026
+- **Summary:** Spencer Bryngelson (Georgia Tech) published a full reverse-engineered reference for the Apple Neural Engine covering the datapath, throughput rooflines, dispatch route below CoreML, the compiler and on-disk program format, weight-compression scheme, kernel driver, and firmware/command protocol. Companion web guide at https://ane-guide.readthedocs.io and code at https://github.com/sbryngelson/ane-guide.
+- **Why it matters:** Most complete public documentation of the ANE's private API surface to date; the dispatch route section maps exactly the path needed to inject utilization hooks below CoreML for t3rm1nu55-monitorplus.
+
+### Finding 2: ANEForge — direct ANE dispatch without CoreML (arxiv:2606.17090)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.17090
+- **Date:** June 12, 2026
+- **Summary:** Companion Python package by the same author; compiles a lazy tensor graph (58 fused operators) into a single ANE program dispatched through the native daemon/driver stack without CoreML. A small fused call completes in ~90 µs, near the engine's documented 70 µs dispatch floor. Code at https://github.com/sbryngelson/ANEForge.
+- **Why it matters:** The 70 µs dispatch-latency floor calibrates IOReport energy-delta sampling rates; the dispatch mechanism demonstrates feasibility of ANE active-state inference without hardware counters.
+
+### Finding 3: kperf/PMU microbenchmarks characterize M1 AMX inner loop (arxiv:2606.25426)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 2026
+- **Summary:** Uses kperf PMU microbenchmarks to prove the M1 AMX inner loop is load-issue bound — any interleaved operand load drops throughput to 610–680 GFLOPS, under half the load-free rate. The 1.17× speedup over Accelerate's GEMM paths comes from multi-thread panel sizing and weight pre-packing, not a faster inner loop.
+- **Why it matters:** Demonstrates that kperf can characterize AMX behavior indirectly via load/FMA ratio events — the closest published approach to AMX counter exposure using existing kperf infrastructure.
+
+### Finding 4: NPUMoE — MoE inference scheduled to ANE, IOReport energy methodology (arxiv:2604.18788)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2604.18788
+- **Date:** April 20, 2026
+- **Summary:** Introduces NPUMoE, which offloads static MoE expert computation to the ANE, reporting 1.32×–5.55× latency reduction and 1.81×–7.37× energy improvement over CPU/GPU baselines on M-series. Energy measurement is IOReport-based; uses offline expert calibration to avoid dynamic shape problems.
+- **Why it matters:** Validates the IOReport energy approach for ANE activity inference at scale; confirms the power-as-proxy-for-utilization model holds under heterogeneous LLM workloads.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
