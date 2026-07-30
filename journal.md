@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-07-30 — sweep (3 findings)
+
+### Finding 1: Comprehensive reverse-engineered ANE architecture guide (A11–M5)
+- **Source:** arXiv 2606.22283 / sbryngelson/ane-guide
+- **URL:** https://arxiv.org/abs/2606.22283 · https://github.com/sbryngelson/ane-guide · https://ane-guide.readthedocs.io
+- **Date:** June 2026
+- **Summary:** Spencer H. Bryngelson (Georgia Tech) published the most complete public reverse-engineering of the ANE to date: datapath, roofline bounds, dispatch route from CoreML to kernel driver to firmware, on-disk program format, weight-compression scheme, and command protocol — covering A11 through A18 and M1 through M5 with direct measurements on M1 and M5. Produced from static analysis of the private runtime, compiler, kernel driver, and firmware.
+- **Why it matters:** First public map of the full ANE software/hardware stack; the kernel driver and firmware documentation is the most likely place to find counter-register offsets if they exist on any chip generation.
+
+### Finding 2: ANEForge — Python toolkit for direct ANE computation without CoreML
+- **Source:** arXiv 2606.17090 / sbryngelson/ANEForge
+- **URL:** https://arxiv.org/abs/2606.17090 · https://github.com/sbryngelson/ANEForge
+- **Date:** June 2026
+- **Summary:** Companion paper to 2606.22283 by the same author. ANEForge is a Python package that compiles lazy tensor graphs (58 fused operators + 19 native bridge operators) directly to ANE programs dispatched through the ANE daemon and kernel driver, bypassing CoreML entirely. Supports both forward and backward passes, int8/int4/sparse weights, and fused attention — the first public end-to-end direct-ANE training toolkit.
+- **Why it matters:** Demonstrates the full direct-ANE dispatch stack in open-source form; if any ANE utilization feedback surfaces at the daemon or driver layer, this codebase is where it would first appear.
+
+### Finding 3: Working kperf/kpc counter methodology on M4 Pro documented
+- **Source:** arXiv 2606.27098
+- **URL:** https://arxiv.org/abs/2606.27098
+- **Date:** June 2026
+- **Summary:** Alpay & Başaran (2606.27098) program fixed and configurable PMU counters per-thread on an M4 Pro using the kperf/kpc private interface (fixed cycles/instructions, retired L1D load misses, L1D refills, L2-TLB data misses, data table walks); also uses IOReport histograms to disaggregate P-core, E-core, and AGX demand from live workloads. Primary focus is GPU cache state security, but the kperf methodology section is a validated reference implementation for M4 Pro.
+- **Why it matters:** Confirms kperf counter access works on M4 Pro with the same approach as M1/M2; their IOReport + kperf combined methodology is directly applicable to the monitorplus kperf sidecar when adding M4 Pro support.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
