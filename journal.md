@@ -4,6 +4,38 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-08-04 — sweep (4 findings)
+
+### Finding 1: Bryngelson — "Apple Neural Engine: Architecture, Programming, and Performance" (arXiv 2606.22283)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.22283
+- **Date:** June 21, 2026
+- **Summary:** Comprehensive reverse-engineering of the ANE across A11–A18 and M1–M5: datapath architecture, roofline bounds, below-CoreML dispatch via private `_ANEClient`/`_ANECompiler` APIs, on-disk compiler/program format, weight-compression scheme, kernel driver, firmware, and command protocol — all derived from direct measurement and static binary analysis. Most complete public ANE hardware characterization to date, with per-chip performance tables for M1 through M5.
+- **Why it matters:** Documents the kernel driver and command protocol in detail — review for any PMU event or IOReport channel disclosures that could feed into t3rm1nu55-monitorplus ANE power telemetry.
+
+### Finding 2: Bryngelson — "ANEForge: Python for Direct Computation on the Apple Neural Engine" (arXiv 2606.17090)
+- **Source:** arXiv / GitHub
+- **URL:** https://arxiv.org/abs/2606.17090 · https://github.com/sbryngelson/ANEForge
+- **Date:** June 12, 2026
+- **Summary:** Companion to 2606.22283. Introduces a Python toolkit that compiles a lazy tensor graph of 58 fused + 19 bridge operators directly into ANE programs, bypassing CoreML entirely using the private `_ANEClient` dispatch path.
+- **Why it matters:** The direct dispatch path is the prerequisite for any future ANE utilization instrumentation; ANEForge makes that path reproducible and gives a concrete symbol list to work against.
+
+### Finding 3: Alpay & Basaran — "Residual GPU Cache State on Apple M4 Pro" (arXiv 2606.27098)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.27098
+- **Date:** June 25, 2026
+- **Summary:** Uses `kperf`/`kpc` (2 fixed + 5 configurable per-thread PMU counters) on an M4 Pro to characterize GPU cache state left after completed GPU commands, discovering the actual L1D refill sector is 64 bytes despite macOS reporting 128-byte cache lines — found via counter measurement, not Apple documentation.
+- **Why it matters:** Confirms kperf counter access still works on M4 Pro and demonstrates which counter slots are programmable; concrete model for counter-based undocumented-SoC-behavior discovery applicable to our kperf sidecar.
+
+### Finding 4: Bhan — "Above the Inner Loop: Exceeding Accelerate at LLM Prefill GEMM on the M1 AMX" (arXiv 2606.25426)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 24, 2026
+- **Summary:** Microbenchmark analysis of the M1 AMX inner loop showing it is load-issue bound, collapsing single-thread throughput to 610–680 GFLOPS when any operand load interleaves with the FMA32 stream (roughly half the load-free theoretical rate); no inner-loop rearrangement tested can escape this bound.
+- **Why it matters:** Advances AMX microarchitectural understanding without counter access — the load-issue bound is the ceiling any future AMX utilization metric must account for.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
