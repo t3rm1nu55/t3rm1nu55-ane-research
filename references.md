@@ -17,6 +17,8 @@ Organized by category. Each entry has: URL, last-checked date, short description
 | [dehydratedpotato/socpowerbud](https://github.com/dehydratedpotato/socpowerbud) | Swift IOReport-based SoC power tool | 2026-08-04 | Alternative IOReport reference implementation. Sometimes catches channels macmon misses. |
 | [tlkh/asitop](https://github.com/tlkh/asitop) | Python powermetrics wrapper | 2026-08-04 | Canary for powermetrics sampler changes (it broke on macOS 13 when Apple removed `bandwidth`). |
 | [corellium/linux-m1](https://github.com/corellium/linux-m1) | Corellium Linux-on-M1 port (earlier than Asahi) | 2026-08-04 | Historic reference for some M1 register semantics. Low update rate. |
+| [kennss/SiliconScope](https://github.com/kennss/SiliconScope) | Per-generation IOReport channel map for M1–M5 Max, including subscribability annotations | 2026-08-04 | Ground truth for IOReport channel names and which are subscribable per macOS version — essential for keeping t3rm1nu55-monitorplus channel tables accurate. |
+| [jiegec/apple-pmu](https://github.com/jiegec/apple-pmu) | kpep plist dumps and analysis for M1–M5; tracks per-generation PMU event additions | 2026-08-04 | The authoritative source for which kperf events exist per SoC generation; already confirmed M5 adds no ANE/AMX events. |
 
 ## Academic & technical papers
 
