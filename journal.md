@@ -4,6 +4,45 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-08-09 — sweep (5 findings)
+
+### Finding 1: Full ANE architecture reference paper (arXiv 2606.22283)
+- **Source:** arXiv / sbryngelson/ane-guide
+- **URL:** https://arxiv.org/abs/2606.22283 · https://ane-guide.readthedocs.io · https://github.com/sbryngelson/ane-guide
+- **Date:** June 21, 2026 (v2: June 27, 2026)
+- **Summary:** Spencer Bryngelson (Georgia Tech) published the first complete reverse-engineered account of ANE hardware: datapath, roofline, dispatch route below CoreML, MIL compiler, on-disk program format, weight-compression scheme, kernel driver, firmware, and command protocol. Based on direct measurement and static analysis of the private runtime and kernel extension. Companion web edition at ane-guide.readthedocs.io with full GitHub source.
+- **Why it matters:** This is the reference document the field has been missing — it defines what internal ANE resources exist and therefore what a future counter could plausibly track.
+
+### Finding 2: ANEForge — direct ANE Python package (arXiv 2606.17090)
+- **Source:** arXiv / sbryngelson/ANEForge / PyPI
+- **URL:** https://arxiv.org/abs/2606.17090 · https://github.com/sbryngelson/ANEForge · https://pypi.org/project/aneforge/
+- **Date:** June 12, 2026
+- **Summary:** Companion to finding 1. ANEForge is a Python package (published to PyPI) that compiles a lazy tensor graph (58 fused operators, 19 native bridge operators) into a single ANE program and dispatches it via the same ANE daemon/kernel-driver stack as Apple's internal framework — without CoreML. Supports full training: forward, backward, and Adam update all compile to ANE programs. Ensures dispatch goes to ANE only (no silent CPU/GPU fallback).
+- **Why it matters:** Operationalizes direct `_ANEClient`/`_ANECompiler` access with a clean API; the dispatch-path tracing in the source code is directly applicable to building ANE utilization inference in t3rm1nu55-monitorplus.
+
+### Finding 3: AMX microarchitectural paper — two on-chip blocks, load-issue bounds (arXiv 2606.25426)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 24, 2026
+- **Summary:** Deyvik Bhan (Georgia Tech) published the first microarchitecture-depth study of M1 AMX, revealing: (1) M1 has two on-chip AMX blocks that can be filled with fine multi-thread panels, (2) the inner loop is load-issue bound — any operand load interleaving with FMA32 drops throughput to ~610–680 GFLOPS (under half load-free rate), (3) M4 and later switched from Apple AMX to ARM SME (Scalable Matrix Extension). A direct-AMX kernel achieves 1.58× geomean over BNNSMatMul across 12 LLM prefill GEMMs.
+- **Why it matters:** M4+ uses SME not AMX — this splits the counter problem by chip generation. The paper's characterization of AMX block topology explains why existing kperf event lists show no AMX-specific events (it is not on the PMU bus).
+
+### Finding 4: maderix/ANE — open-source ANE training via private APIs, with benchmarks
+- **Source:** GitHub
+- **URL:** https://github.com/maderix/ANE
+- **Date:** Active through mid-2026 (42 commits; companion to Substack Part 3, March 2026)
+- **Summary:** Open-source implementation of forward/backward transformer training directly on ANE via `_ANEClient`, `_ANECompiler`, and `_ANEInMemoryModelDescriptor`. Includes GPU↔ANE zero-copy pipelines and INT8 W8A8 quantization. Benchmarks on M4: FP16 18.6 TOPS (128×conv, 512ch), INT8 W8A8 35.1 TOPS (1.88× speedup). Sustained utilization measured at only 5–9% of peak, highlighting dispatch overhead as the dominant bottleneck.
+- **Why it matters:** The benchmark harness in this repo is the most credible public measurement of ANE throughput and the 5–9% utilization ceiling establishes what a hypothetical counter would actually report.
+
+### Finding 5: jiegec/apple-pmu adds M5 (H17G Hidra) counter definitions
+- **Source:** GitHub — jiegec/apple-pmu
+- **URL:** https://github.com/jiegec/apple-pmu · https://github.com/jiegec/apple-pmu/blob/master/as5.md
+- **Date:** 2026 (M5 shipped mid-2026)
+- **Summary:** The jiegec/apple-pmu repo, which dumps PMU counter definitions from `/usr/share/kpep`, has been extended with M5 (H17G Hidra) support: files as5.md, as5-1.md, as5-2.md. M5 adds LD_SRC_* (load data-source tracking), PL2 cache events, and SME (Scalable Matrix Extension) engine counters not present in M4. The ESR register format already changed at M3/M4 (8-bit → 16-bit per event); M5 continues the 16-bit layout.
+- **Why it matters:** Confirms no AMX/ANE-specific named events in M5 kpep either, and documents the SME engine counter namespace — the path to watch for any future Apple-disclosed accelerator events.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
