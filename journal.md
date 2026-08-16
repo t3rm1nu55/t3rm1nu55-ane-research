@@ -4,6 +4,45 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-08-16 — sweep (5 findings)
+
+### Finding 1: Comprehensive ANE reverse-engineering reference (A11–M5)
+- **Source:** arXiv / GitHub
+- **URL:** https://arxiv.org/abs/2606.22283 · https://github.com/sbryngelson/ane-guide · https://ane-guide.readthedocs.io
+- **Date:** June 21, 2026 (v2 June 27, 2026)
+- **Summary:** "Apple Neural Engine: Architecture, Programming, and Performance" by Spencer H. Bryngelson covers the ANE datapath, dispatch route below CoreML, MIL compiler and on-disk program format, weight-compression scheme, kernel driver, firmware, and command protocol across A11–M5 silicon. It is the most comprehensive public ANE reverse-engineering reference since hollance/neural-engine, now including two generations beyond M4.
+- **Why it matters:** The kernel driver and firmware sections are the most likely place to find documented telemetry or performance counter registers within the ANE — exactly the open problem this repo tracks.
+
+### Finding 2: ANEForge — direct Python ANE programming bypassing CoreML
+- **Source:** arXiv / PyPI / GitHub
+- **URL:** https://arxiv.org/abs/2606.17090 · https://github.com/sbryngelson/ANEForge · https://pypi.org/project/aneforge/
+- **Date:** June 12, 2026
+- **Summary:** ANEForge compiles a lazy Python tensor graph (58 fused + 19 bridge operators) into a single ANE program without CoreML, achieving ResNet-18 forward pass in 0.33 ms with ~90 µs per-call overhead on Apple Silicon. Published to PyPI.
+- **Why it matters:** An independently-maintained CoreML bypass; its implementation of the private ANE dispatch path may expose IOKit properties or timing hooks that could be probed for utilization metrics.
+
+### Finding 3: AMX microarchitecture performance study — M1 AMX inner loop characterized
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 2026
+- **Summary:** "Above the Inner Loop: Exceeding Accelerate at LLM Prefill GEMM on the M1 AMX" (Deyvik Bhan, Georgia Tech) determines the M1 AMX inner loop is load-issue bound at ~610–680 GFLOPS single-thread and demonstrates a hand-written kernel that beats Accelerate by 1.17× across GPT-2-to-Llama-7B scale prefill GEMMs.
+- **Why it matters:** Adds the most precise public characterization to date of AMX throughput saturation and bottleneck structure; useful baseline for any future AMX counter exposure or inference-side utilization proxy work.
+
+### Finding 4: ane-infer — ANE LLM inference via private _ANEClient symbols
+- **Source:** GitHub
+- **URL:** https://github.com/thebasedcapital/ane-infer
+- **Date:** 2026 (exact commit date not pinned in this sweep)
+- **Summary:** `ane-infer` implements Apple Neural Engine LLM inference using reverse-engineered private `_ANEClient` symbols, Metal GPU shaders, and hybrid ANE+GPU+CPU scheduling, claiming 32 tok/s and 3.6 TFLOPS fused ANE mega-kernels on Apple Silicon.
+- **Why it matters:** Another independent `_ANEClient` user alongside hollance and maderix; dispatch patterns and observed IOKit behavior may surface undocumented properties adjacent to performance telemetry.
+
+### Finding 5: macmon v0.8.2 — per-core IOReport metrics silently broken on M3 Ultra
+- **Source:** GitHub (vladkens/macmon)
+- **URL:** https://github.com/vladkens/macmon/commit/6919d7781b6c55a6e3bedff83a210435837e1dfe
+- **Date:** August 4, 2026
+- **Summary:** macmon v0.8.2 restores per-core CPU metrics for M3 Ultra, which had silently regressed due to M3 Ultra's chiplet topology causing IOReport channel name collisions not seen on single-die M3 chips.
+- **Why it matters:** M3 Ultra's IOReport layout differs from other M3 variants in ways that silently break per-core metric collection; t3rm1nu55-monitorplus needs verification against M3 Ultra hardware.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
