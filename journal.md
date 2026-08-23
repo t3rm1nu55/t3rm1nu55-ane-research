@@ -4,6 +4,50 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-08-23 — sweep (5 findings)
+
+### Finding 1: Comprehensive ANE Architecture Reference — arXiv 2606.22283
+
+- **Source:** arXiv / sbryngelson/ane-guide
+- **URL:** https://arxiv.org/abs/2606.22283 / https://github.com/sbryngelson/ane-guide
+- **Date:** June 2026
+- **Summary:** "Apple Neural Engine: Architecture, Programming, and Performance" (Bryngelson) is the deepest public reverse-engineering of the ANE to date, covering the datapath and roofline, compiler and on-disk program format, weight-compression scheme, kernel driver, firmware, and command protocol — all derived from direct hardware measurement and static analysis of private frameworks. A companion web edition is at ane-guide.readthedocs.io; the reference is also used by ANEForge (Finding 2) and the Orion paper (Finding 3).
+- **Why it matters:** Kernel driver and firmware protocol documentation is the closest public map to where ANE utilization counters would live. Reviewing the ane-guide for counter-related IOKit interfaces is now a concrete next step for t3rm1nu55-monitorplus.
+
+### Finding 2: ANEForge — Direct ANE Dispatch via Python, PyPI-Available
+
+- **Source:** arXiv 2606.17090 / sbryngelson/ANEForge
+- **URL:** https://arxiv.org/abs/2606.17090 / https://github.com/sbryngelson/ANEForge
+- **Date:** June 12, 2026
+- **Summary:** ANEForge compiles a lazy tensor graph (58 fused operators + 19 native bridge operators) into a single ANE program and dispatches it through the same private `aned` daemon and IOKit kernel-driver path used by CoreML, MPSGraph, and Espresso — without CoreML. Training (forward pass, backward pass, Adam) is fully supported; the package is available on PyPI as `aneforge`.
+- **Why it matters:** ANEForge is the lowest-friction public way to drive the ANE kernel driver directly. Pairing ANEForge dispatches with IOReport Energy Model sampling could yield per-dispatch energy deltas and makes the kernel driver path concrete enough to investigate for utilization counter IOKit properties.
+
+### Finding 3: Orion — First Public LLM Training Directly on ANE
+
+- **Source:** arXiv 2603.06728 / mechramc/Orion (GitHub)
+- **URL:** https://arxiv.org/abs/2603.06728 / https://github.com/mechramc/Orion
+- **Date:** March 6, 2026
+- **Summary:** Orion is the first open end-to-end LLM training and inference runtime for the Apple Neural Engine, bypassing CoreML entirely via Apple's private `_ANEClient` and `_ANECompiler` APIs. The paper documents achieving 94% ANE utilization with deep operation graphs (16–64 ops) and demonstrates training a 109M-parameter transformer with checkpoint resume. It builds on the maderix foundational API work.
+- **Why it matters:** The 94% ANE utilization claim requires a measurement basis — the methodology used to derive this figure likely reveals either a hardware counter or a power-inferred proxy that could directly inform t3rm1nu55-monitorplus's ANE telemetry design.
+
+### Finding 4: AMX Two-Block Architecture Discovered via PMU Counters
+
+- **Source:** arXiv 2606.25426
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 24, 2026
+- **Summary:** "Above the Inner Loop: Exceeding Accelerate at LLM Prefill GEMM on the M1 AMX" (Bhan) uses hardware PMU counters to characterize the M1 AMX and discovers that M1 contains two on-chip AMX blocks, not one as previously assumed. The AMX inner loop is load-issue bound at ~610–680 GFLOPS under mixed load/FMA workloads; exploiting fine multi-thread panels across both blocks exceeds Accelerate's BNNS Graph path by 1.17×.
+- **Why it matters:** Two AMX blocks changes the utilization model — any future AMX counter must aggregate across both units. The PMU counter methodology used here (load-issue bound characterization) is a direct template for AMX event discovery work.
+
+### Finding 5: kperf/kpc Counter Usage on Apple M4 Pro Documented
+
+- **Source:** arXiv 2606.27098
+- **URL:** https://arxiv.org/abs/2606.27098
+- **Date:** June 25, 2026
+- **Summary:** "Residual GPU Cache State on Apple M4 Pro" (Alpay & Başaran) programs kperf/kpc as root on an M4 Pro, using fixed (cycles, instructions) plus configurable events: retired L1D load misses, L1D refill sectors, L2-TLB data misses, and data table walks. The paper pairs kperf measurements with IOReport histogram data for hardware grounding.
+- **Why it matters:** Confirms working kperf counter configurations on M4 Pro generation hardware and provides a concrete template for validating t3rm1nu55-monitorplus's privileged kperf sidecar counter setup on M4 Pro targets.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
