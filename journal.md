@@ -4,6 +4,52 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-08-26 — sweep (6 findings)
+
+### Finding 1: Bryngelson — "Apple Neural Engine: Architecture, Programming, and Performance" (arXiv 2606.22283)
+- **Source:** arXiv / sbryngelson/ane-guide (GitHub)
+- **URL:** https://arxiv.org/abs/2606.22283
+- **Date:** June 2026
+- **Summary:** Comprehensive reference paper documenting the ANE's datapath, roofline, dispatch route below CoreML, compiler pipeline, program format (`.mil`/`.mlpackage` internals), and kernel driver. Derived from measurement and decompilation; the associated GitHub repo (`sbryngelson/ane-guide`) is actively maintained. This is the most thorough public treatment of ANE internals to date.
+- **Why it matters:** Essential reference for any future ANE counter reverse engineering; the kernel driver section may clarify whether performance counter registers are accessible from host.
+
+### Finding 2: Orion — ANE characterization for LLM inference (arXiv 2603.06728)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** March 2026 (missed in initial April 7 sweep)
+- **Summary:** "Orion: Characterizing and Programming Apple's Neural Engine for LLM Training and Inference." Finds that deep operation graphs (16–64 ops) achieve 94% ANE utilization. Extends the public catalog of ANE dispatch constraints to 20 rules (14 newly documented), covering MIL IR, memory, and I/O restrictions.
+- **Why it matters:** Establishes via black-box benchmarking what "full ANE utilization" looks like; useful calibration for any power-based ANE utilization proxy in monitorplus.
+
+### Finding 3: AMX dual-block structure revealed (arXiv 2606.25426)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 2026
+- **Summary:** "Above the Inner Loop: Exceeding Accelerate at LLM Prefill GEMM on the M1 AMX" (Deyvik Bhan). Finds that the M1 has two independent on-chip AMX blocks that Accelerate underutilizes; the inner loop is load-issue bound, capping single-thread throughput at 610–680 GFLOPS. A direct-AMX kernel using fine multi-thread panels and weight pre-packing beats Accelerate/BNNS by 1.17×.
+- **Why it matters:** First public documentation of M1 having dual AMX blocks; any future AMX counter work needs to account for two independent coprocessor instances per P-core cluster.
+
+### Finding 4: kperf/kpc counter methodology demonstrated on M4 Pro (arXiv 2606.27098)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.27098
+- **Date:** June 2026
+- **Summary:** "Residual GPU Cache State on Apple M4 Pro" (Alpay & Başaran). Uses the kperf/kpc private interface as root to program M4 Pro PMU counters, recovering L1D refill granularity (64 B), L1D capacity (128 KiB), and a full empirical memory-hierarchy curve via counter-driven measurement rather than microbenchmarks alone.
+- **Why it matters:** Directly demonstrates the kperf/kpc root-access programming pattern on M4; the paper's methodology (counter selection, sampling loop, result interpretation) is a reference implementation for our own privileged sidecar counter work.
+
+### Finding 5: ri_neural_footprint — public API for per-process ANE memory (kennss/SiliconScope)
+- **Source:** GitHub — kennss/SiliconScope
+- **URL:** https://github.com/kennss/SiliconScope
+- **Date:** 2026 (active; commit count 240+)
+- **Summary:** SiliconScope's Process Inspector exposes per-process Neural-Engine memory via `ri_neural_footprint` from the public `proc_pid_rusage()` syscall — no root, no private APIs. The ANE "utilization" gauge is a power-normalized estimate from IOReport Energy Model (same as our approach), but the per-process ANE memory field is a genuinely new public-API data point not currently in monitorplus.
+- **Why it matters:** `ri_neural_footprint` is a public SDK call we can add to the main project today without privileged access; it's a step toward per-process ANE telemetry even before hardware counter exposure is solved.
+
+### Finding 6: maderix Part 3 — full ANE training (forward + backward pass) via private APIs
+- **Source:** maderix Substack
+- **URL:** https://maderix.substack.com/p/inside-the-m4-apple-neural-engine-c8b
+- **Date:** 2026 (after Part 2, exact date unconfirmed)
+- **Summary:** Continues the M4 ANE reverse-engineering series with a full training implementation: forward pass, backward pass, gradient computation, and Adam optimizer for a 109M-parameter model, later scaled to Qwen3-0.6B. Identifies that ANE's native SDPA ignores causal masks, requiring dispatch decomposition across ANE and CPU.
+- **Why it matters:** The depth of ANE dispatch understanding in this work (including gradient flow through `_ANEClient`) may surface new private symbols or scheduling constraints relevant to ANE counter access attempts.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
