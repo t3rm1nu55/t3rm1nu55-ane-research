@@ -4,6 +4,31 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-08-28 — sweep (3 findings)
+
+### Finding 1: Comprehensive ANE architecture paper and guide (arXiv 2606.22283)
+- **Source:** arXiv / sbryngelson/ane-guide (GitHub + ReadTheDocs)
+- **URL:** https://arxiv.org/abs/2606.22283 · https://github.com/sbryngelson/ane-guide · https://ane-guide.readthedocs.io
+- **Date:** June 21, 2026 (v2 revision June 27, 2026)
+- **Summary:** Spencer Bryngelson (Georgia Tech) published the first systematic reverse-engineered account of the Apple Neural Engine, covering M1–M5 and A11–A18 families. The paper documents the ANE datapath, roofline performance bounds, compiler and on-disk program format, weight-compression scheme, and the kernel driver, firmware, and command protocol below CoreML. Per-chip target tables and an operation-by-device matrix are included; direct measurements are on M1 and M5.
+- **Why it matters:** The kernel driver and command protocol documentation is the deepest public map of the ANE's software stack — a prerequisite for any future attempt to hook utilization counters or power telemetry below the CoreML abstraction.
+
+### Finding 2: ANEForge — open Python library for direct ANE access (arXiv 2606.17090)
+- **Source:** arXiv / sbryngelson/ANEForge (GitHub + PyPI)
+- **URL:** https://arxiv.org/abs/2606.17090 · https://github.com/sbryngelson/ANEForge
+- **Date:** June 12, 2026 (paper); June 23, 2026 (tool launch)
+- **Summary:** Bryngelson also released ANEForge, a pip-installable Python package that compiles a lazy tensor graph (58 fused operators, 19 native bridge operators) directly into ANE programs without CoreML, using the private `_ANEClient` and `_ANECompiler` APIs. Training workloads (forward + backward + Adam) run fully on the ANE.
+- **Why it matters:** First openly distributed library for direct ANE access; demonstrates the `_ANEClient` private API surface is stable enough to ship as a dependency. The dispatch path it exposes is exactly the hook point where power or timing measurements could be injected to infer utilization.
+
+### Finding 3: kperf/kpc usage confirmed on M4 Pro hardware (arXiv 2606.27098)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.27098
+- **Date:** June 25, 2026
+- **Summary:** Faruk Alpay and Baris Basaran used the kperf/kpc private macOS interface to measure L1D refill sectors and distinguish cache-line conflict behavior on a 14-core Apple M4 Pro. The methodology cross-validates PMU hardware counters against IOReport histograms and STREAM/BabelStream benchmarks.
+- **Why it matters:** Confirms kperf is functional and usable on M4 Pro as of macOS ~15.x; the cross-validation methodology against IOReport is directly applicable to how t3rm1nu55-monitorplus validates its own PMU readings.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
