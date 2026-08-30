@@ -4,6 +4,38 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-08-30 — sweep (4 findings)
+
+### Finding 1: Comprehensive ANE Architecture, Programming, and Performance paper (M1–M5)
+- **Source:** arXiv / Spencer H. Bryngelson (Georgia Tech)
+- **URL:** https://arxiv.org/abs/2606.22283 — companion guide: https://ane-guide.readthedocs.io
+- **Date:** June 21, 2026
+- **Summary:** Reverse-engineered account of the ANE based on direct hardware measurement and static analysis of the private runtime, compiler, kernel driver, and firmware. Covers A11 through M5 families with direct measurements on M1 and M5. Documents the full dispatch path below CoreML: the datapath roofline, compiler and on-disk program format, weight-compression scheme, kernel driver command protocol, and firmware ABI. An accompanying reference manual is published at ane-guide.readthedocs.io.
+- **Why it matters:** Most thorough public documentation of ANE internals to date; the kernel driver and firmware command protocol sections are directly relevant to any future attempt to surface ANE utilization metrics in t3rm1nu55-monitorplus.
+
+### Finding 2: ANEForge — Python framework for direct ANE computation without CoreML
+- **Source:** arXiv / Spencer H. Bryngelson (Georgia Tech); PyPI: aneforge; GitHub: sbryngelson/ANEForge
+- **URL:** https://arxiv.org/abs/2606.17090
+- **Date:** June 12, 2026
+- **Summary:** Open Python package that compiles a lazy tensor graph (58 fused operators + 19 native bridge operators) into an ANE program and dispatches it through the same ANE daemon and kernel-driver stack Apple uses internally, bypassing CoreML entirely. ANEForge is the first public tool that places arbitrary compute on the ANE without CoreML as intermediary.
+- **Why it matters:** Actionable — the dispatch path ANEForge exposes is exactly where ANE utilization signals would live. Studying ANEForge's kernel-driver interaction could provide the approach for reading ANE counters or power state in t3rm1nu55-monitorplus.
+
+### Finding 3: M5 Neural Accelerators exposed via Metal 4 tensor API (BaseRT paper)
+- **Source:** arXiv / Waschkowski, Rathnayaka, Wesemann (Base Compute)
+- **URL:** https://arxiv.org/abs/2607.19438
+- **Date:** July 21, 2026
+- **Summary:** The M5 GPU architecture places a dedicated Neural Accelerator on every GPU core, exposed through the public Metal 4 tensor API. The BaseRT LLM inference runtime routes matrix multiplications through these units and achieves 6.4× higher prefill throughput than llama.cpp. Unlike the ANE (private API only), M5 neural accelerators are reachable via a documented Metal API.
+- **Why it matters:** M5 may represent a new paradigm where neural compute is measurable via Metal performance counters rather than reverse-engineered ANE private APIs — warrants investigation for M5 support in t3rm1nu55-monitorplus.
+
+### Finding 4: AMX inner-loop characterization on M1 — load-issue bound
+- **Source:** arXiv / Deyvik Bhan
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 2026
+- **Summary:** Characterizes single-precision GEMM on M1 AMX and finds the inner loop is load-issue bound, with single-thread throughput at 610–680 GFLOPS. Demonstrates a hand-written kernel that exceeds Accelerate's BNNS Graph path by 1.17× by exploiting M1's second on-chip AMX block via fine multi-thread panels. Builds on the MIT AMX thesis (Sep 2025).
+- **Why it matters:** The load-issue bound finding identifies which PMU event class (load-related) would be most diagnostic for AMX utilization — directly relevant to the AMX event discovery workstream in t3rm1nu55-monitorplus.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
