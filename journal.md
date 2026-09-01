@@ -4,6 +4,34 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-09-01 — sweep (3 findings)
+
+### Finding 1: Full ANE reverse-engineering reference — architecture, compiler, driver, firmware
+
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.22283
+- **Date:** June 21, 2026
+- **Summary:** Spencer Bryngelson's "Apple Neural Engine: Architecture, Programming, and Performance" is the most thorough public reverse-engineered account of the ANE yet. It documents the fp16 datapath (fp32-class accumulator), the roofline bound, the dispatch route below CoreML, the MIL compiler and on-disk program format, the weight-compression scheme, and the kernel driver, firmware, and command protocol. A companion reference guide is live at `sbryngelson/ane-guide` on GitHub.
+- **Why it matters:** The kernel-driver and firmware documentation is the most likely place to discover whether the ANE exposes any hardware performance counter registers accessible from the host CPU; this should be the primary read for v2 ANE work.
+
+### Finding 2: ANEForge — direct Python-to-ANE dispatch without CoreML
+
+- **Source:** arXiv / GitHub / PyPI
+- **URL:** https://arxiv.org/abs/2606.17090
+- **Date:** June 12, 2026
+- **Summary:** ANEForge (`sbryngelson/ANEForge`) compiles a lazy tensor graph (58 fused operators, 19 bridge operators) to a single ANE program dispatched through the same ANE daemon and kernel-driver stack Apple uses internally, bypassing CoreML entirely. It supports forward, backward, and Adam optimizer steps, ONNX import, LLM decode/prefill, and model compression. No hardware performance counters are exposed, but it is the most capable open direct-dispatch stack available.
+- **Why it matters:** Provides a reference implementation of the full direct-ANE call path (_ANEClient → daemon → driver → firmware); any future counter probe for t3rm1nu55-monitorplus would need to follow this same dispatch chain.
+
+### Finding 3: AMX inner-loop microbenchmark — M1 AMX is load-issue bound, not FMA-bound
+
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 24, 2026
+- **Summary:** Bhan's "Above the Inner Loop: Exceeding Accelerate at LLM Prefill GEMM on the M1 AMX" characterizes M1 AMX throughput via microbenchmark: the inner loop is load-issue bound, with peak single-thread throughput collapsing to ~610–680 GFLOPS when operand loads interleave with the FMA32 stream (vs. the load-free theoretical rate). The speedup over Accelerate comes from finer multi-thread panel scheduling, not a faster inner loop. Uses algorithmic microbenchmarks, not hardware PMU counters.
+- **Why it matters:** Establishes that AMX throughput can be meaningfully characterized from software timing alone without hardware counter access; narrows the "why AMX utilization matters" framing for v2 scope decisions.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
