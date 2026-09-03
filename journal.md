@@ -4,6 +4,38 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-09-03 — sweep (4 findings)
+
+### Finding 1: ANEForge — Python library for direct ANE computation without CoreML
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.17090
+- **Date:** June 12, 2026
+- **Summary:** Spencer Bryngelson (Georgia Tech) released ANEForge, a Python package that compiles a lazy tensor graph of 58 fused operators directly to a single ANE execution program, bypassing CoreML entirely via the same private `_ANEClient`/`_ANECompiler` APIs that maderix reverse-engineered. Training (forward + backward + Adam) runs on ANE; a ResNet-18 forward pass takes 0.33 ms. Installable from PyPI; companion GitHub at `sbryngelson/ANEForge`.
+- **Why it matters:** First publicly installable tool for direct ANE graph programming; establishes a stable open interface we can study for any utilization or counter exposure hooks.
+
+### Finding 2: "Apple Neural Engine: Architecture, Programming, and Performance" — comprehensive public reference (June 2026)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.22283
+- **Date:** June 21, 2026
+- **Summary:** Companion paper by Bryngelson covering ANE architecture across every chip generation from A11 through A18 and M1 through M5, with per-chip operation support tables and a programming model reference. Most complete public documentation of ANE internals published to date; companion guide at `ane-guide.readthedocs.io`.
+- **Why it matters:** Authoritative chip-by-chip operation and capability matrix; directly relevant for deciding which chip-generation gating logic to implement when ANE utilization inference is added.
+
+### Finding 3: M4+ Apple chips use ARM SME, not Apple AMX — microarchitecture boundary confirmed
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 24, 2026
+- **Summary:** Deyvik Bhan (Georgia Tech) microbenchmarks M1 AMX for LLM GEMM, characterizing it as load-issue bound at ~610–680 GFLOPS under interleaved loads. The paper explicitly confirms that M4 and later SoCs replaced Apple's proprietary AMX with the publicly-documented ARM Scalable Matrix Extension (SME); M1–M3 use Apple AMX, M4+ use ARM SME.
+- **Why it matters:** Kills the assumption that "AMX counter" work generalizes across all M-series chips. AMX event discovery efforts apply only to M1–M3; on M4+ the SME has ARM-standard PMU events, making counter access there much more tractable.
+
+### Finding 4: darwin-kperf — Rust FFI crate wrapping Apple's private kperf framework
+- **Source:** crates.io / docs.rs
+- **URL:** https://crates.io/crates/darwin-kperf
+- **Date:** Published 2026 (exact date unconfirmed; absent from April 2026 sweep)
+- **Summary:** `darwin-kperf` by Bilal Mahmoud / HASH wraps Apple's private `kperf.framework` and `kperfdata.framework` for Rust via `dlopen` at runtime, exposing hardware PMU counters (cycles, instructions, cache misses, branch mispredictions) with no link-time dependency on private headers. Companion `darwin-kperf-criterion` integrates with Criterion benchmarks. Requires root and physical Apple Silicon hardware; no ABI stability guarantee.
+- **Why it matters:** Directly eliminates the need to write our own unsafe kperf FFI in t3rm1nu55-monitorplus; the privileged sidecar could vendor this crate instead of hand-rolling the dlopen binding.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
