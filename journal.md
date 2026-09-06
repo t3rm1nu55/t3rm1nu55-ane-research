@@ -4,6 +4,45 @@ Chronological log of findings. Newest entries at the top. Updated daily by an au
 
 ---
 
+## 2026-09-06 — sweep (5 findings)
+
+### Finding 1: ANE memory-controller byte counters confirm actual execution (arxiv 2608.22110)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2608.22110
+- **Date:** August 22, 2026
+- **Summary:** Shahir M A's paper "What actually runs" sweeps a 64-shape matrix of LLM primitives and reads the ANE's memory-controller byte counters during inference to establish what actually ran on the engine vs. falling back to CPU. Key finding: placement is a property of how a computation is expressed, not what it computes — a fused RMSNorm is fully ANE-eligible while its arithmetically identical decomposition is CPU-only.
+- **Why it matters:** First public technique using ANE memory-controller byte counters as a ground-truth utilization signal; this is the measurement primitive t3rm1nu55-monitorplus would need to implement real ANE activity detection.
+
+### Finding 2: Comprehensive ANE architecture reverse-engineering reference (arxiv 2606.22283)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.22283
+- **Date:** June 2026
+- **Summary:** Spencer Bryngelson's "Apple Neural Engine: Architecture, Programming, and Performance" documents the ANE via direct measurement on Apple silicon and static analysis of the private runtime, compiler, kernel driver, and firmware. Covers the datapath and roofline, the dispatch route below CoreML, the compiler and on-disk program format, weight-compression, kernel driver, firmware, and command protocol.
+- **Why it matters:** Most comprehensive public ANE internals reference to date; the kernel driver section may expose counter register locations adjacent to the command protocol.
+
+### Finding 3: ANEForge — Python direct ANE programming without CoreML (arxiv 2606.17090)
+- **Source:** arXiv / GitHub (github.com/sbryngelson/ANEForge)
+- **URL:** https://arxiv.org/abs/2606.17090
+- **Date:** June 2026
+- **Summary:** Spencer Bryngelson's ANEForge is a Python package (also on PyPI) that compiles a lazy tensor graph of 58 fused operators into a single ANE program dispatched directly through the ANE daemon and kernel-driver stack, bypassing CoreML entirely. A small fused program completes in ~90µs, near the 70µs per-program dispatch floor; supports both inference and training (forward + backward + optimizer) on-device.
+- **Why it matters:** The most accessible direct ANE programming interface yet published; the daemon/driver dispatch path it exercises is the same one where memory-controller byte counters (Finding 1) would be readable.
+
+### Finding 4: Orion — end-to-end LLM runtime on ANE with 20-constraint MIL catalog (arxiv 2603.06728)
+- **Source:** arXiv / GitHub (github.com/mechramc/Orion)
+- **URL:** https://arxiv.org/abs/2603.06728
+- **Date:** March 6, 2026 (missed in seed — published before last sweep date but not captured)
+- **Summary:** Orion is the first open end-to-end system combining direct ANE execution, a compiler pipeline, and stable multi-step training with checkpoint resume, bypassing CoreML via Apple's private `_ANEClient`/`_ANECompiler` APIs. It extends maderix's prior characterization with a catalog of 20 restrictions on MIL IR programs, memory layout, compilation limits, and numerical behavior.
+- **Why it matters:** The 20-constraint catalog is a precise enumeration of what the ANE will and will not execute — essential context for any model that aims to guarantee ANE placement rather than silent CPU fallback.
+
+### Finding 5: AMX dual-block architecture characterization on M1 (arxiv 2606.25426)
+- **Source:** arXiv
+- **URL:** https://arxiv.org/abs/2606.25426
+- **Date:** June 24, 2026
+- **Summary:** Deyvik Bhan (Georgia Tech) characterizes M1 AMX throughput via microbenchmark in "Above the Inner Loop: Exceeding Accelerate at LLM Prefill GEMM on the M1 AMX." Key structural finding: M1 has two on-chip AMX blocks; the inner loop is load-issue bound at 610–680 GFLOPS per thread when any operand load interleaves with the FMA32 stream, under half the load-free rate. Gains over Accelerate come from fine multi-thread panels and pre-packing weights, not a faster inner loop.
+- **Why it matters:** Confirms M1 two-AMX-block topology and establishes the load-issue bound as the correct throughput model for AMX utilization inference; useful when designing AMX activity proxies based on memory bandwidth rather than direct counters.
+
+---
+
 ## 2026-04-07 — Initial seed
 
 Repository created. Initial scope, structure, and references.md seeded from a research synthesis produced on 2026-04-06 by a Sonnet agent investigating the open problems in Apple Silicon deep telemetry.
